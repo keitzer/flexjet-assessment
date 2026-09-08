@@ -1,277 +1,49 @@
 # Flights
 
-An iOS take-home for Flexjet: sign in against a flights service, browse Upcoming and Past
-flights, and mark past flights complete.
+An iOS take-home for Flexjet: sign in, browse Upcoming/Past flights in your time zone, and mark
+past flights complete. Includes persistent sessions, retry/refresh states, haptics, and appearance settings.
 
-SwiftUI, Swift 6 with strict concurrency, `@Observable`, no third-party app dependencies.
+## Architecture
 
-## Running
+SwiftUI + Swift 6 + Observation, using MVVM with a typed navigation router and injected dependencies.
+A URLSession client sits behind a protocol; DTO validation, business rules, and formatting stay
+outside views. Tokens use Keychain; completion and preferences are device-local. No third-party
+app dependencies. [Architecture and ADRs](docs/architecture.md)
 
-Open `Flights/Flights.xcodeproj` and run the **Flights** scheme (iOS 26 simulator).
+## Get started
 
-Sign in with the service's sole user: **`john` / `12345`**.
+Requires Xcode with the iOS 26.2+ SDK and simulator runtime, plus SwiftLint (`brew install swiftlint`).
+Open `Flights/Flights.xcodeproj`, select **Flights**, and run. Demo login: **`john` / `12345`**.
 
-Tests: `Cmd-U`, or use the Fastlane test lane from the repository root. The toolchain is recorded in
-`.ruby-version` (Ruby 3.3.12) and `Gemfile.lock` (Bundler 2.6.9 and Fastlane 2.239.0).
-The Gemfile requires Ruby 3.3.x; `.ruby-version` selects the exact tested patch version with rbenv.
-
-One-time setup with rbenv:
+Run tests in Xcode with **Cmd-U**, or set up the CLI tools with rbenv installed:
 
 ```sh
 rbenv install -s
 gem install bundler -v 2.6.9
 bundle config set --local path vendor/bundle
 bundle install
-```
-
-Run all unit tests:
-
-```sh
 bundle exec fastlane test
-```
-
-The lane defaults to the iPhone 17 Pro simulator and Debug configuration. It builds the app,
-runs `FlightsTests`, and exits unsuccessfully on build, lint, or test failures, or if no tests
-match the filter. SwiftLint runs
-through the existing Xcode build phase. No Apple account setup is needed for this lane.
-
-Optional simulator and test filters:
-
-```sh
-bundle exec fastlane test device:"iPhone 17"
-bundle exec fastlane test only:"FlightsTests/FlightClassifierTests"
-bundle exec fastlane test only:"FlightsTests/FlightClassifierTests/badgeForLaterToday()"
-```
-
-List available simulators with `xcrun simctl list devices available`. Results, including JUnit
-and an Xcode `.xcresult` bundle, are saved under `fastlane/test_output/`; build products go in
-`build/DerivedData/`. Both locations are ignored by Git. Commit `Gemfile` and `Gemfile.lock`
-so everyone installs the same Fastlane dependencies. The Gemfile currently permits Fastlane 2.239.x
-patch updates through `bundle update fastlane`; change its constraint for a later minor release.
-
-For a single Swift Testing function, include its parentheses in the quoted identifier as above.
-
-The underlying Xcode command remains available:
-
-```sh
-xcodebuild -project Flights/Flights.xcodeproj -scheme Flights \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
-```
-
-SwiftLint is required (`brew install swiftlint`) and runs as a build phase; any violation fails
-the build. See "Code quality" below.
-
-## Architecture
-
-MVVM with a typed router, and a hard line between business logic and the UI layer.
-
-```
-App/          entry point, DI container, tab shell, navigation router
-Core/
-  Networking/ FlightsAPIClient protocol, live URLSession client, mock, APIError
-  Session/    SessionStore, Keychain + in-memory TokenStorage
-  Completion/ FlightCompletionStore and its persistence
-Models/
-  DTO/        wire types + failable mapping to domain
-  Domain/     Flight, Airport, FlightClassifier, sample fixtures
-  Formatting/ FlightFormatter
-DesignSystem/ tokens + reusable components
-Features/     Login, FlightList, FlightDetail, Placeholders
-```
-
-**Why these choices**
-
-- **MVVM over a full Coordinator.** A UIKit-style coordinator that builds and presents view
-  controllers fights SwiftUI. The same separation is expressed by `FlightsRouter`: an
-  `@Observable` object owning a `[FlightRoute]` path, where `FlightRoute` is a plain value.
-  Screens call `router.showDetail(flight)` instead of constructing their own destinations, so
-  routing lives in one place and is drivable from a test or a deep link.
-- **DTOs separate from domain models.** `FlightDTO` mirrors the JSON with optional fields;
-  `Flight.init?(dto:)` decides what a usable flight is. `FlightsResponseDTO` decodes records
-  individually, so missing fields, wrong field types, and non-object entries are dropped without
-  discarding valid siblings. Invalid JSON or a non-array response still produces a decoding error.
-- **Plain URLSession behind a protocol.** Two endpoints do not justify a networking dependency.
-  Views depend on `FlightsAPIClient`, never on `URLSession`, so previews and tests substitute
-  `MockFlightsAPIClient` with no network.
-- **Isolation follows the layer.** The target builds with `SWIFT_DEFAULT_ACTOR_ISOLATION =
-  MainActor`. Domain models, formatting and networking are explicitly `nonisolated` (they are
-  values that cross actors); only UI-facing state — `SessionStore`, `FlightCompletionStore`, the
-  view models — is main-actor isolated.
-- **Environment injection.** `AppDependencies` is built once in `FlightsApp` and passed down; no
-  type reaches for a singleton. `.preview()` swaps in stubs.
-
-## Notes on the data
-
-Working against the live service turned up several things worth calling out.
-
-- **`flightNumber` is genuinely nullable.** `FL006` returns `null`. Past rows show the flight
-  number, so that row falls back to the **tail number** rather than rendering a blank line.
-  The detail screen shows an em dash.
-- **`FL034` contradicts itself**: a 72-character origin label ending in `(JFK)` alongside an
-  `originIata` of `SFO`. The two fields are kept independent — each screen uses the one the
-  design calls for — and the long label is allowed to wrap rather than being truncated.
-- **Two timestamp formats.** The live feed sends fractional seconds (`...:00.000Z`); the
-  published docs show the same field without them. `ISO8601Parsing` accepts both, so a change in
-  the service's serialiser cannot break decoding.
-- **Price is dollars, not cents.** The docs render `349` as `$349`. No currency field is sent, so
-  USD is assumed.
-- **The token expires after 24h.** A 401 on an authenticated route ends the session, which
-  returns the app to login rather than showing an error the user cannot act on.
-
-## Business rules
-
-Isolated in `FlightClassifier` and `FlightFormatter`, both with injected clock, calendar, locale
-and time zone so they can be tested at fixed instants in arbitrary zones.
-
-- **Upcoming vs Past** splits on *departure*, not arrival: a flight in the air has left. The
-  boundary is strict (`departure < now`), so a flight leaving this exact second is still upcoming.
-- **Flight Today** requires all three: upcoming, departing today, not yet departed. "Today" is
-  evaluated in the user's calendar, which is what makes the badge follow the device's time zone.
-- **Ordering**: upcoming soonest-first, past most-recent-first, matching the design.
-- **Time zone**: the service sends UTC; every displayed date and time is rendered through
-  `.autoupdatingCurrent`, so the same instant reads 8:00 AM in New York and 9:00 PM in Tokyo.
-  `FlightFormatterTests` pins exactly that case.
-
-One subtlety worth flagging: `Date.AnchoredRelativeFormatStyle` describes the *anchor* relative to
-the value being formatted, which is the opposite of how it reads. Formatting `now` with the
-flight's date as the anchor is what yields "2w ago" rather than "in 2w"; the tests pin both
-directions so it cannot silently regress.
-
-## Profile settings
-
-Profile includes a persisted haptics toggle (on by default) and System / Light / Dark appearance
-(System by default). Preferences are device-local in UserDefaults and survive sign-out. Appearance
-applies at the app root, including login, with adaptive colors for text, controls and cards.
-All app-generated haptics pass through the same preference check; native controls may provide
-their own system feedback.
-
-The supplied Figma detail fields use Proxima Nova Bold at 15 px with a 23 px rounded line box.
-No Proxima Nova font files are supplied in the repository, so the app still uses the system font.
-Detail fields use bold 15-point text, a scaled 23-point minimum row height, and 16-point row gaps.
-Exact glyph shapes and text metrics require bundling the actual font files.
-
-## Completion state
-
-The service exposes no write endpoint, so completion is device-local: `FlightCompletionStore`
-persists a set of flight IDs to `UserDefaults` (a non-sensitive preference, unlike the auth token,
-which lives in the Keychain). The store is shared through the environment and the list's rows are
-computed rather than stored, so marking a flight complete on the detail screen updates the row's
-checkmark on the way back — driven by shared state, not by passing a callback up the stack.
-Completion and undo are available only after departure, using the same strict `departure < now`
-boundary as the Past list. Upcoming details hide the button, and the view model also guards the action.
-
-## Testing
-
-SwiftLint keeps its default rules plus explicit opt-ins in `.swiftlint.yml`. Strict mode makes
-every violation fail the command and the Xcode build. Safety checks include forced casts/tries/
-unwraps, weak delegates, unowned captures, discarded throwing tasks, and discarded notification
-observer tokens. Style checks also enforce trailing closures and access modifiers on individual
-extension members. Nesting is limited to one nested type level and two nested function levels;
-cyclomatic complexity starts failing at the configured warning threshold of 10.
-
-Rule names and behavior were checked with SwiftLint 0.65.1. `fatal_error_nil_coalescing` and
-`anyobject_protocol` are not available rules in that version. `fatal_error_message` requires a
-diagnostic message; it does not prohibit fatal errors. The Swift compiler's warnings-as-errors
-setting rejects the deprecated `protocol Example: class` syntax in favor of `AnyObject`.
-Lint reduces known risks but does not prove absence of retain cycles, crashes, or concurrency bugs.
-
-77 tests in 17 suites, written with Swift Testing (87 executions including parameterized cases).
-They cover the logic that would actually break:
-
-- `FlightClassifierTests` — segment split, the Flight Today rule, the departure boundary, per-zone
-  day boundaries, and ordering within each segment.
-- `FlightFormatterTests` / `ISO8601ParsingTests` — chip and range formatting, both timestamp
-  layouts, relative dates in both directions, and the same instant across two time zones.
-- `FlightMappingTests` — decoding a verbatim live record, the null flight number, and that one
-  malformed record is dropped without discarding the valid ones.
-- `FlightRowModelBuilderTests` / `FlightDetailPresenterTests` — what each row and field says.
-- `FlightListViewModelTests` — loaded, empty and failed states, and that a 401 ends the session.
-- `LoginViewModelTests`, `FlightCompletionStoreTests`, `SessionStoreTests`.
-- `LiveFlightsAPIClientTests` — request paths, methods, JSON credentials, bearer headers, nullable
-  fields, malformed records, HTTP failures, blank tokens, and transport cancellation. A stateless
-  `URLProtocol` stub intercepts requests; these tests never contact the live service.
-- `FlightRequestLifecycleTests` — only the latest request can publish results; old responses cannot
-  sign out a newer session; cancelling an initial load leaves it retryable; cancelling a refresh
-  preserves loaded data.
-- `LoginRegressionTests` — clearing a rejected password retains the error until the user edits,
-  and cancelled sign-in preserves the form without authenticating.
-- `CompletionPropagationTests` — toggling details updates an already-loaded list and persisted
-  completion state without another fetch.
-- `SignInLifecycleTests` — late successes and failures after cancellation or session changes,
-  sign-out during authentication, and duplicate submissions.
-- `FlightDecodingCancellationTests` — cancelled record processing exits with cancellation.
-
-UI-facing observable state remains on `MainActor`. Session revisions protect against stale responses
-even when two sessions use the same token. Login and retry tasks retain cancellation handles that
-their views cancel on disappearance; initial loading uses SwiftUI's `.task`. The live API methods
-use `@concurrent` to keep response decoding off the caller's actor under Swift 6.2's isolation rules.
-In-memory stores use `Synchronization.Mutex`, avoiding unchecked Sendable conformance.
-
-Formatted output is compared through a helper that normalises Unicode spaces: iOS separates the
-minutes from AM/PM with U+202F, which is invisible on screen but not in a string comparison.
-
-## Nice-to-haves included
-
-- Keychain-backed session that survives relaunch; 401 signs the user out automatically.
-- Loading, empty, and error states with retry; pull-to-refresh.
-- A `#Preview` on every component and screen, backed by fixtures and a configurable mock, so each
-  one previews offline with no login — including the empty, error and loading states, the null
-  flight number, and the 72-character label.
-- Accessibility: combined elements with meaningful labels, the segmented control exposed as
-  selectable, and completion conveyed by fill and label rather than colour alone.
-- Small motion: the segment pill slides via `matchedGeometryEffect`, the completion mark uses a
-  symbol replace transition, and completing a flight fires haptic feedback.
-  Switching Upcoming/Past starts the selected list at the top; the pill animates independently
-  so replacing the rows does not animate their layout or reuse the other category's scroll offset.
-- Haptics: heavy impacts at full intensity for sign-in, add flight, flight rows, sign-out, retry,
-  sheet dismissal, filter and tab changes, and completing or undoing completion.
-  Feedback stays in the UI layer. Check the tactile feel on a physical
-  iPhone; simulator tests cannot verify it.
-- Strict quality gates: Swift 6, warnings-as-errors, and SwiftLint in strict mode (200-line files,
-  40-line functions, no force unwraps) failing the build on any violation.
-
-**Debug affordance:** in Debug builds only, launching with `-seedToken <jwt>` starts the app
-already signed in. It exists so the signed-in screens can be inspected without typing credentials
-on a simulator keyboard, and it compiles out of Release.
-
-## Known gaps
-
-- Favorites and Contracts are honest placeholders; the brief does not define them. Profile is
-  real to the extent that it owns sign-out.
-- The `+` button opens a placeholder — no add-flight flow is specified.
-- No UI test target. The view models are covered, but the navigation flow itself is not
-  exercised end-to-end.
-- Date-dependent rows recompute when the view updates; there is no scheduled refresh at departure
-  or midnight yet. A screen left idle can retain its earlier category or Flight Today badge.
-
-## Time breakdown
-
-| Area | Time |
-| --- | --- |
-| First Pass | 0.5 Hours |
-| Nice-to-haves (tests, previews, states, a11y) | 1 hours |
-| Additional (project setup, lint config, README) | 1.5 hours |
-
-## Code quality
-
-Run lint from the repository root:
-
-```sh
 swiftlint
 ```
 
-Validated with SwiftLint 0.65.1. The Flights target also runs SwiftLint before compilation on
-every build; a missing SwiftLint or any violation fails the build. Debug and Release use Swift 6
-and treat Swift compiler warnings as errors.
+Ruby and gem versions are recorded in `.ruby-version` and `Gemfile.lock`. The test lane defaults
+to an iPhone 17 Pro simulator. Lint violations and compiler warnings fail the build.
+[More commands and test coverage](docs/development.md)
 
-`.swiftlint.yml` keeps SwiftLint's default rules and adds stricter checks for unsafe unwraps,
-SwiftUI state visibility, collection usage, formatting, and redundant code. Limits are 120
-characters per line (URLs exempt), 40 lines per function, 250 lines per type, 200 lines per file,
-five function parameters, and cyclomatic complexity of 10. All warning thresholds are enforced as
-errors.
+## Scope notes
 
-Prefer extracting small views and functions to suppressing rules. Any necessary suppression should
-target a specific rule and the smallest scope, with a comment explaining why it is needed.
+Favorites, Contracts, and Add Flight are placeholders. Completion is local-only. There is no UI
+test target, idle date-based screens do not refresh on a timer, and Proxima Nova assets are pending.
+[UI notes and limitations](docs/ui-notes.md) · [Service behavior](docs/service-and-behavior.md)
 
-Xcode user script sandboxing is disabled on the app target so the Homebrew SwiftLint executable
-can read the repository and load the Swift toolchain. The build phase disables lint caching.
+## Time breakdown
+
+| Area | Recorded time |
+| --- | --- |
+| First pass (Login + Flights; not tracked separately) | 0.5 hours |
+| Nice-to-haves (tests, previews, states, accessibility) | 1+ hour |
+| Additional (project setup, lint config, README) | 1.5 hours |
+
+These are the previously recorded figures; subsequent iterations have not been added.
+
+[Full documentation and decision index](docs/README.md)

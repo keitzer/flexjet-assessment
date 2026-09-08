@@ -5,8 +5,9 @@
 - Respect the user's current scope and any hold on implementation work.
 - Other sessions may be editing this checkout. Preserve existing changes, inspect relevant files
   before editing, and avoid unrelated refactors or overwriting another session's work.
-- Keep these instructions focused on durable decisions. Record implementation decisions and actual
-  time spent in README.md; do not invent time estimates presented as time already spent.
+- Keep these instructions focused on durable decisions. Record actual time spent in README.md;
+  put detailed implementation notes in docs/ and architectural decisions
+  in docs/adr/. Keep README.md brief. Do not invent time estimates presented as time already spent.
 
 ## Stack and architecture
 
@@ -74,7 +75,7 @@
 ## Decisions already made
 
 Recorded so a later session extends them instead of relitigating them. The reasoning lives in
-README.md; this is the short form.
+docs/adr/ (indexed by docs/README.md); this is the short form.
 
 - Navigation is a typed router (above), not a coordinator object.
 - Isolation follows the layer. The target sets `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, so
