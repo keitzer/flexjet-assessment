@@ -71,8 +71,6 @@ struct LoginView: View {
                     .onSubmit { submit() }
             }
         }
-        .onChange(of: viewModel.username) { viewModel.clearErrorIfNeeded() }
-        .onChange(of: viewModel.password) { viewModel.clearErrorIfNeeded() }
     }
 
     @ViewBuilder
@@ -112,6 +110,7 @@ struct LoginView: View {
     }
 }
 
+#if DEBUG
 #Preview("Login") {
     LoginView(dependencies: .preview())
 }
@@ -119,3 +118,4 @@ struct LoginView: View {
 #Preview("Rejected credentials") {
     LoginView(dependencies: .preview(apiClient: MockFlightsAPIClient.rejectingSignIn))
 }
+#endif

@@ -103,6 +103,7 @@ private struct FlightListPreview: View {
 }
 #endif
 
+#if DEBUG
 #Preview("Loaded") {
     FlightListPreview(dependencies: .preview())
 }
@@ -118,3 +119,4 @@ private struct FlightListPreview: View {
 #Preview("Loading") {
     FlightListPreview(dependencies: .preview(apiClient: MockFlightsAPIClient.loading))
 }
+#endif

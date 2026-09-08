@@ -2,9 +2,8 @@ import Foundation
 
 /// Wire representation of a flight, mirroring the service's JSON exactly.
 ///
-/// Every field is optional so that a single malformed or newly-nullable field cannot fail the
-/// decode of the whole response. Validation happens in `Flight.init(dto:)`, which is the one
-/// place that decides what a usable flight is.
+/// Optional fields tolerate missing and null values. `FlightsResponseDTO` isolates records with
+/// wrong field types; `Flight.init(dto:)` decides whether a decoded record is usable.
 nonisolated struct FlightDTO: Decodable, Sendable {
     let id: String?
     let tripNumber: String?

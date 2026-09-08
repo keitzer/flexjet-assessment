@@ -43,6 +43,7 @@ private func previewModel(_ flight: Flight, isComplete: Bool = false) -> FlightR
 }
 #endif
 
+#if DEBUG
 #Preview("Rows") {
     ScrollView {
         VStack(spacing: Theme.Spacing.medium) {
@@ -56,3 +57,4 @@ private func previewModel(_ flight: Flight, isComplete: Bool = false) -> FlightR
     }
     .background(Theme.Palette.screen)
 }
+#endif

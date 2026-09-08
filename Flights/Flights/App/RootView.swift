@@ -25,6 +25,7 @@ struct RootView: View {
     }
 }
 
+#if DEBUG
 #Preview("Signed out") {
     RootView(
         dependencies: AppDependencies(
@@ -38,3 +39,4 @@ struct RootView: View {
 #Preview("Signed in") {
     RootView(dependencies: .preview())
 }
+#endif

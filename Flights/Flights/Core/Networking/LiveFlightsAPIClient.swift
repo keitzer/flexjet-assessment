@@ -21,7 +21,11 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
             SignInRequestDTO(username: username, password: password)
         )
         let data = try await perform(request, unauthorizedError: .invalidCredentials)
-        return try decode(SignInResponseDTO.self, from: data).token
+        let token = try decode(SignInResponseDTO.self, from: data).token
+        guard !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw APIError.decoding
+        }
+        return token
     }
 
     func flights(token: String) async throws -> [Flight] {
@@ -31,7 +35,7 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
         let data = try await perform(request, unauthorizedError: .sessionExpired)
         // Records that fail validation are dropped rather than failing the whole screen, so one
         // malformed flight cannot leave the user with an empty list.
-        return try decode([FlightDTO].self, from: data).compactMap(Flight.init(dto:))
+        return try decode(FlightsResponseDTO.self, from: data).flights
     }
 
     /// Sends a request and validates the status code.
@@ -42,6 +46,9 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
+            if error is CancellationError || (error as? URLError)?.code == .cancelled {
+                throw CancellationError()
+            }
             throw APIError.from(error)
         }
         guard let http = response as? HTTPURLResponse else {

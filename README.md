@@ -46,10 +46,10 @@ Features/     Login, FlightList, FlightDetail, Placeholders
   `@Observable` object owning a `[FlightRoute]` path, where `FlightRoute` is a plain value.
   Screens call `router.showDetail(flight)` instead of constructing their own destinations, so
   routing lives in one place and is drivable from a test or a deep link.
-- **DTOs separate from domain models.** `FlightDTO` mirrors the JSON with every field optional;
-  `Flight.init?(dto:)` is the single place that decides what a usable flight is. A record missing
-  required data is dropped rather than failing the whole screen, so one malformed flight cannot
-  leave the user with an empty list.
+- **DTOs separate from domain models.** `FlightDTO` mirrors the JSON with optional fields;
+  `Flight.init?(dto:)` decides what a usable flight is. `FlightsResponseDTO` decodes records
+  individually, so missing fields, wrong field types, and non-object entries are dropped without
+  discarding valid siblings. Invalid JSON or a non-array response still produces a decoding error.
 - **Plain URLSession behind a protocol.** Two endpoints do not justify a networking dependency.
   Views depend on `FlightsAPIClient`, never on `URLSession`, so previews and tests substitute
   `MockFlightsAPIClient` with no network.
@@ -107,7 +107,8 @@ checkmark on the way back — driven by shared state, not by passing a callback 
 
 ## Testing
 
-54 tests in 11 suites, written with Swift Testing. They cover the logic that would actually break:
+72 tests in 15 suites, written with Swift Testing (79 executions including parameterized cases).
+They cover the logic that would actually break:
 
 - `FlightClassifierTests` — segment split, the Flight Today rule, the departure boundary, per-zone
   day boundaries, and ordering within each segment.
@@ -118,6 +119,16 @@ checkmark on the way back — driven by shared state, not by passing a callback 
 - `FlightRowModelBuilderTests` / `FlightDetailPresenterTests` — what each row and field says.
 - `FlightListViewModelTests` — loaded, empty and failed states, and that a 401 ends the session.
 - `LoginViewModelTests`, `FlightCompletionStoreTests`, `SessionStoreTests`.
+- `LiveFlightsAPIClientTests` — request paths, methods, JSON credentials, bearer headers, nullable
+  fields, malformed records, HTTP failures, blank tokens, and transport cancellation. A stateless
+  `URLProtocol` stub intercepts requests; these tests never contact the live service.
+- `FlightRequestLifecycleTests` — only the latest request can publish results; old responses cannot
+  sign out a newer session; cancelling an initial load leaves it retryable; cancelling a refresh
+  preserves loaded data.
+- `LoginRegressionTests` — clearing a rejected password retains the error until the user edits,
+  and cancelled sign-in preserves the form without authenticating.
+- `CompletionPropagationTests` — toggling details updates an already-loaded list and persisted
+  completion state without another fetch.
 
 Formatted output is compared through a helper that normalises Unicode spaces: iOS separates the
 minutes from AM/PM with U+202F, which is invisible on screen but not in a string comparison.
@@ -147,6 +158,8 @@ on a simulator keyboard, and it compiles out of Release.
 - The `+` button opens a placeholder — no add-flight flow is specified.
 - No UI test target. The view models are covered, but the navigation flow itself is not
   exercised end-to-end.
+- Date-dependent rows recompute when the view updates; there is no scheduled refresh at departure
+  or midnight yet. A screen left idle can retain its earlier category or Flight Today badge.
 
 ## Time breakdown
 

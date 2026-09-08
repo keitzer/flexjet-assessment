@@ -31,7 +31,9 @@ struct MainTabView: View {
     }
 }
 
+#if DEBUG
 #Preview("Main tabs") {
     MainTabView(dependencies: .preview())
         .environment(\.dependencies, .preview())
 }
+#endif

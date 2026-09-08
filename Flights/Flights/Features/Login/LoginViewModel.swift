@@ -14,8 +14,12 @@ final class LoginViewModel {
         case failed(APIError)
     }
 
-    var username = ""
-    var password = ""
+    var username = "" {
+        didSet { clearErrorIfNeeded() }
+    }
+    var password = "" {
+        didSet { clearErrorIfNeeded() }
+    }
     private(set) var state: ViewState = .editing
 
     private let apiClient: FlightsAPIClient
@@ -49,16 +53,19 @@ final class LoginViewModel {
                 username: username.trimmingCharacters(in: .whitespaces),
                 password: password
             )
+            try Task.checkCancellation()
             // Publishing the token flips the root view over to the main tabs.
             session.beginSession(token: token)
+        } catch is CancellationError {
+            state = .editing
         } catch {
-            state = .failed(.from(error))
             password = ""
+            state = .failed(.from(error))
         }
     }
 
     /// Clears a previous failure once the user edits either field.
-    func clearErrorIfNeeded() {
+    private func clearErrorIfNeeded() {
         if case .failed = state {
             state = .editing
         }

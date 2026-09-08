@@ -27,6 +27,7 @@ final class FlightListViewModel {
     private let builder: FlightRowModelBuilder
     /// Injected so tests can pin "now" and previews stay deterministic.
     private let now: @Sendable () -> Date
+    private var latestRequestID: UUID?
 
     init(
         apiClient: FlightsAPIClient,
@@ -81,17 +82,28 @@ final class FlightListViewModel {
 
     /// Fetches flights. Used for first load and for pull-to-refresh.
     func load() async {
+        let requestID = UUID()
+        latestRequestID = requestID
         guard let token = session.token else {
             state = .failed(.sessionExpired)
             return
         }
+        let previousState: ViewState = state == .loading ? .idle : state
         if state != .loaded {
             state = .loading
         }
         do {
-            flights = try await apiClient.flights(token: token)
+            let result = try await apiClient.flights(token: token)
+            try Task.checkCancellation()
+            guard latestRequestID == requestID, session.token == token else { return }
+            flights = result
             state = .loaded
         } catch {
+            guard latestRequestID == requestID, session.token == token else { return }
+            if error is CancellationError || Task.isCancelled {
+                state = previousState
+                return
+            }
             let apiError = APIError.from(error)
             // A rejected token means the session is over; drop it so the app returns to login
             // rather than showing an error the user cannot act on.

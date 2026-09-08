@@ -22,7 +22,9 @@ struct ProfileScreen: View {
     }
 }
 
+#if DEBUG
 #Preview("Profile") {
     ProfileScreen()
         .environment(\.dependencies, .preview())
 }
+#endif

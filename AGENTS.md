@@ -34,7 +34,8 @@
   with flight requests. Do not implement authentication as a local credential comparison.
 - Populate flights from service data. Display flight times in the user's current time zone.
 - Show Flight Today only for upcoming flights whose departure is today in the user's time zone
-  and is still in the future. Make the exact departure boundary explicit and test it.
+  and has not passed. The established boundary is `departure < now` for past flights; the exact
+  departure instant remains upcoming. Keep this boundary explicit and tested.
 - Keep upcoming/past classification separate from the user's completion flag unless the product
   requirements explicitly change that behavior.
 - Completing a flight in its details must update the corresponding list checkmark.
@@ -69,14 +70,20 @@ README.md; this is the short form.
   domain models, formatting and networking are explicitly `nonisolated` and only UI-facing state
   (`SessionStore`, `FlightCompletionStore`, view models) is main-actor isolated. Mark new value
   types crossing actors `nonisolated`; do not reach for `@unchecked Sendable` to silence this.
-  The one justified `@unchecked` is `UserDefaultsCompletionStorage`, because `UserDefaults`
-  predates `Sendable` but is documented thread-safe.
+  Existing `@unchecked` conformances are `UserDefaultsCompletionStorage`, because `UserDefaults`
+  predates `Sendable` but is documented thread-safe, and the two in-memory storage classes, whose
+  mutable state is protected by `NSLock`.
 - Invalid flight records are dropped, not surfaced as an error: `Flight.init?(dto:)` is the single
-  validation point, and one malformed record must not empty the whole screen.
+  domain validation point. `FlightsResponseDTO` isolates per-record decoding failures, including
+  wrong field types. Malformed top-level JSON still fails the request.
 - Completion is device-local (`UserDefaults`) because the service has no write endpoint. The auth
   token is a credential and lives in the Keychain instead.
 - A 401 on an authenticated route ends the session, returning the user to login.
+- Only the latest flight request for the current token may publish results or expire the session.
+  Cancellation is not a user-facing service failure; preserve loaded data or allow an initial retry.
 - No third-party dependencies. Two endpoints do not justify a networking library.
+- Guard preview blocks that use debug-only mocks or helpers with `#if DEBUG` too; `#Preview`
+  references are still type-checked in Release. Verify a Release build after preview changes.
 - Placeholders are honest: Favorites, Contracts and the `+` button say they are unbuilt rather
   than faking content. Profile is real to the extent that it owns sign-out.
 
@@ -109,6 +116,10 @@ Root: `https://v0-simple-authentication-api.vercel.app` — sole user `john` / `
   `MockFlightsAPIClient.empty`, not `.empty`, where the parameter is `any FlightsAPIClient`.
 - iOS 26 places `.toolbar` items in a floating capsule above a large title. The Flights header is
   drawn in content instead, so the title and `+` share one row as the design shows.
+- Never assert with `#expect` inside `URLProtocol.startLoading()` or any other callback off the
+  test's task context. Swift Testing attributes those to `Test «unknown»` and `xcodebuild test`
+  still exits **0**, so the check cannot fail CI. `StubURLProtocol` captures each request instead
+  and the tests assert on it from the test body, where a failure exits 65.
 - Simulator Keychain items **survive `simctl uninstall`**, so an app reinstall can still launch
   signed in and a "fresh install" is not actually fresh. To get back to the login screen use
   `xcrun simctl keychain <device> reset` (uninstalling or wiping `UserDefaults` will not do it).

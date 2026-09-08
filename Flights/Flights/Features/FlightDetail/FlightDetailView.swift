@@ -63,6 +63,7 @@ private struct FlightDetailPreview: View {
 }
 #endif
 
+#if DEBUG
 #Preview("Detail") {
     FlightDetailPreview(flight: .samplePast)
 }
@@ -78,3 +79,4 @@ private struct FlightDetailPreview: View {
 #Preview("Long location") {
     FlightDetailPreview(flight: .sampleLongName)
 }
+#endif

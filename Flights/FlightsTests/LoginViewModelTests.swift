@@ -58,7 +58,7 @@ struct LoginViewModelTests {
         model.password = "wrong"
         await model.signIn()
         #expect(model.errorMessage != nil)
-        model.clearErrorIfNeeded()
+        model.password = "corrected-password"
         #expect(model.state == .editing)
         #expect(model.errorMessage == nil)
     }

@@ -29,6 +29,8 @@ struct FlightsTab: View {
     }
 }
 
+#if DEBUG
 #Preview("Flights tab") {
     FlightsTab(dependencies: .preview())
 }
+#endif
