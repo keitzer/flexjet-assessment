@@ -162,6 +162,19 @@ boundary as the Past list. Upcoming details hide the button, and the view model 
 
 ## Testing
 
+SwiftLint keeps its default rules plus explicit opt-ins in `.swiftlint.yml`. Strict mode makes
+every violation fail the command and the Xcode build. Safety checks include forced casts/tries/
+unwraps, weak delegates, unowned captures, discarded throwing tasks, and discarded notification
+observer tokens. Style checks also enforce trailing closures and access modifiers on individual
+extension members. Nesting is limited to one nested type level and two nested function levels;
+cyclomatic complexity starts failing at the configured warning threshold of 10.
+
+Rule names and behavior were checked with SwiftLint 0.65.1. `fatal_error_nil_coalescing` and
+`anyobject_protocol` are not available rules in that version. `fatal_error_message` requires a
+diagnostic message; it does not prohibit fatal errors. The Swift compiler's warnings-as-errors
+setting rejects the deprecated `protocol Example: class` syntax in favor of `AnyObject`.
+Lint reduces known risks but does not prove absence of retain cycles, crashes, or concurrency bugs.
+
 77 tests in 17 suites, written with Swift Testing (87 executions including parameterized cases).
 They cover the logic that would actually break:
 

@@ -15,7 +15,7 @@ struct CompletionPropagationTests {
         let eligible = instant == "2026-09-01T12:00:01Z"
         let storage = InMemoryCompletionStorage()
         let completion = FlightCompletionStore(storage: storage)
-        let detail = FlightDetailViewModel(flight: flight, completion: completion, now: { now })
+        let detail = FlightDetailViewModel(flight: flight, completion: completion) { now }
 
         #expect(detail.canToggleCompletion == eligible)
         detail.toggleCompletion()
@@ -34,10 +34,9 @@ struct CompletionPropagationTests {
         let list = FlightListViewModel(
             apiClient: MockFlightsAPIClient(flightsResult: .success([flight])),
             session: SessionStore(storage: InMemoryTokenStorage(token: "token")),
-            completion: completion,
-            now: { now }
-        )
-        let detail = FlightDetailViewModel(flight: flight, completion: completion, now: { now })
+            completion: completion
+        ) { now }
+        let detail = FlightDetailViewModel(flight: flight, completion: completion) { now }
         await list.load()
         list.selectedCategory = .past
         #expect(try #require(list.items.first).model.isComplete == false)

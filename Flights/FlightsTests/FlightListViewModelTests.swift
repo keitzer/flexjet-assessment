@@ -22,9 +22,8 @@ struct FlightListViewModelTests {
             builder: FlightRowModelBuilder(
                 formatter: Fixtures.formatter(in: Fixtures.eastern),
                 classifier: FlightClassifier(calendar: Fixtures.calendar(in: Fixtures.eastern))
-            ),
-            now: { [now] in now }
-        )
+            )
+        ) { [now] in now }
         return (model, session)
     }
 

@@ -20,6 +20,8 @@ opt_in_rules:
   - contains_over_filter_count
   - contains_over_filter_is_empty
   - contains_over_first_not_nil
+  - discarded_notification_center_observer
+  - discouraged_object_literal
   - discouraged_optional_boolean
   - empty_collection_literal
   - empty_count
@@ -33,18 +35,25 @@ opt_in_rules:
   - modifier_order
   - multiline_arguments
   - multiline_parameters
+  - no_extension_access_modifier
   - operator_usage_whitespace
   - overridden_super_call
   - prefer_self_in_static_references
   - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
   - private_swiftui_state
   - redundant_nil_coalescing
+  - redundant_self
   - redundant_type_annotation
   - sorted_imports
   - toggle_bool
+  - trailing_closure
+  - unhandled_throwing_task
   - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
   - vertical_whitespace_closing_braces
   - vertical_whitespace_opening_braces
+  - weak_delegate
 
 force_cast: error
 force_try: error
@@ -68,6 +77,11 @@ file_length:
 cyclomatic_complexity:
   warning: 10
   error: 15
+nesting:
+  type_level:
+    warning: 1
+  function_level:
+    warning: 2
 function_parameter_count:
   warning: 5
   error: 7
