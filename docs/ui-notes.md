@@ -17,6 +17,12 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 
 ## Enhancements
 
+- Initial flight loading uses shimmering card placeholders. Reduce Motion shows static placeholders;
+  animation stops when the scene is inactive. VoiceOver exposes a single "Loading flights" element.
+  Pull-to-refresh retains the loaded flights instead of replacing them with placeholders.
+- The selected Upcoming/Past segment has a contrasting fill and outline in dark mode so selection
+  is visible beyond the label's color and weight.
+
 - Keychain-backed session that survives relaunch; 401 signs the user out automatically.
 - Loading, empty, and error states with retry; pull-to-refresh.
 - A `#Preview` on every component and screen, backed by fixtures and a configurable mock, so each

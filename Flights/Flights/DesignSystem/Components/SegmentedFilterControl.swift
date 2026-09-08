@@ -38,7 +38,10 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
                 .background {
                     if isSelected {
                         Capsule()
-                            .fill(Theme.Palette.card)
+                            .fill(Theme.Palette.segmentSelection)
+                            .overlay {
+                                Capsule().strokeBorder(Theme.Palette.segmentOutline, lineWidth: 1)
+                            }
                             .shadow(color: .black.opacity(0.08), radius: 3, y: 1)
                             .matchedGeometryEffect(id: "pill", in: pillNamespace)
                     }

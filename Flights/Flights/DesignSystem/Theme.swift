@@ -20,6 +20,9 @@ enum Theme {
         /// Neutral month band used by past flights, which are de-emphasised.
         static let neutralChip = Color(light: 0xE5E5E5, dark: 0x48484A)
         static let segmentTrack = Color(.tertiarySystemFill)
+        static let segmentSelection = Color(light: 0xFFFFFF, dark: 0x48484A)
+        static let segmentOutline = Color(light: 0xFFFFFF, dark: 0x8E8E93)
+        static let skeleton = Color(light: 0xE5E5EA, dark: 0x3A3A3C)
 
         static let primaryText = Color(light: 0x262626, dark: 0xF2F2F7)
         static let secondaryText = Color(light: 0x737373, dark: 0xAEAEB2)

@@ -1,15 +1,5 @@
 import SwiftUI
 
-/// Shown while the first page of data loads.
-struct LoadingStateView: View {
-    var body: some View {
-        ProgressView()
-            .controlSize(.large)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .accessibilityLabel("Loading")
-    }
-}
-
 /// Shown when a request fails, with a retry affordance.
 struct ErrorStateView: View {
     let error: APIError
@@ -46,10 +36,6 @@ struct EmptyFlightsStateView: View {
             Text(message)
         }
     }
-}
-
-#Preview("Loading") {
-    LoadingStateView()
 }
 
 #Preview("Error") {

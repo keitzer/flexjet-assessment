@@ -57,7 +57,7 @@ struct FlightListView: View {
     private var content: some View {
         switch viewModel.state {
         case .idle, .loading:
-            LoadingStateView()
+            FlightListSkeleton()
         case .failed(let error):
             ErrorStateView(error: error) {
                 guard retryTask == nil else { return }
