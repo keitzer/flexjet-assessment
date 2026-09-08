@@ -1,4 +1,4 @@
-# Flights
+<h1><img src="docs/assets/app-icon-rounded.svg" alt="Flights app icon" width="64" height="64" align="center">&nbsp; Flights</h1>
 
 An iOS take-home for Flexjet: sign in, browse Upcoming/Past flights in your time zone, and mark
 past flights complete. Includes favorite routes, persistent sessions, retry/refresh states, haptics,

@@ -21,6 +21,20 @@ No Proxima Nova font files are supplied in the repository, so the app still uses
 Detail fields use bold 15-point text, a scaled 23-point minimum row height, and 16-point row gaps.
 Exact glyph shapes and text metrics require bundling the actual font files.
 
+## App icon
+
+`Assets.xcassets/AppIcon.appiconset/AppIcon.png` is the universal 1024×1024 opaque icon:
+an ivory aircraft on a burgundy gradient, with subtle dimensional relief. Generated using the
+built-in image generation tool and resized for the asset catalog. Corners are left square for
+the system mask; no custom dark or tinted variants are supplied.
+The README uses `docs/assets/app-icon-rounded.svg`, which embeds the same PNG with a rounded
+clip and subtle border. Regenerate that wrapper when replacing the app icon.
+
+Generation prompt: a full-bleed opaque square iOS icon; rich burgundy (#93272C to #491821)
+satin gradient; one bold ivory airplane viewed from above, pointing upper-right, centered and
+occupying roughly 60% of the square; crisp swept wings, subtle relief and soft shadow; no text,
+border, watermark, clouds, globe or extra objects.
+
 ## Enhancements
 
 - Favorites saves directional routes, not individual flights. Favorite/unfavorite actions appear
