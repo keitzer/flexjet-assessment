@@ -8,13 +8,13 @@ struct EndpointCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xSmall) {
             Text(location)
-                .font(.subheadline.weight(.semibold))
+                .font(Theme.Typography.emphasizedBody)
                 .foregroundStyle(Theme.Palette.primaryText)
                 // The service ships a 72-character label; wrap instead of truncating so the
                 // full location stays readable.
                 .lineLimit(3)
             Text(caption)
-                .font(.footnote)
+                .font(Theme.Typography.caption)
                 .foregroundStyle(Theme.Palette.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

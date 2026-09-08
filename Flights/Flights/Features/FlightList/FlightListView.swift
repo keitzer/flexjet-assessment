@@ -42,7 +42,7 @@ struct FlightListView: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             Text("Flights")
-                .font(.largeTitle.weight(.bold))
+                .font(Theme.Typography.screenTitle)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
             // The brief specifies no "add flight" flow, so the button matches the design and

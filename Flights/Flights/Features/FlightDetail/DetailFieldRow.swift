@@ -3,16 +3,16 @@ import SwiftUI
 /// A label/value line on the detail screen, e.g. "Trip Number  1234567".
 struct DetailFieldRow: View {
     let field: FlightDetailModel.Field
-    @ScaledMetric(relativeTo: .subheadline) private var rowHeight = 23.0
+    @ScaledMetric(relativeTo: .subheadline) private var rowHeight = Theme.Size.detailFieldMinHeight
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(field.label)
-                .font(.subheadline.weight(.bold))
+                .font(Theme.Typography.detailField)
                 .foregroundStyle(Theme.Palette.secondaryText)
             Spacer(minLength: Theme.Spacing.medium)
             Text(field.value)
-                .font(.subheadline.weight(.bold))
+                .font(Theme.Typography.detailField)
                 .foregroundStyle(Theme.Palette.primaryText)
                 .multilineTextAlignment(.trailing)
         }

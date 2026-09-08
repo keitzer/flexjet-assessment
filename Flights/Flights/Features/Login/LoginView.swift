@@ -30,7 +30,7 @@ struct LoginView: View {
                 submitButton
             }
             .padding(Theme.Spacing.xLarge)
-            .frame(maxWidth: 480)
+            .frame(maxWidth: Theme.Size.loginFormMaxWidth)
             .frame(maxWidth: .infinity)
         }
         .background(Theme.Palette.screen)
@@ -41,12 +41,12 @@ struct LoginView: View {
     private var header: some View {
         VStack(spacing: Theme.Spacing.small) {
             Image(systemName: "airplane.departure")
-                .font(.system(size: 44, weight: .semibold))
+                .font(Theme.Typography.loginIcon)
                 .foregroundStyle(Theme.Palette.brand)
             Text("Flights")
-                .font(.largeTitle.weight(.bold))
+                .font(Theme.Typography.screenTitle)
             Text("Sign in to see your itinerary.")
-                .font(.subheadline)
+                .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Palette.secondaryText)
         }
         .padding(.top, Theme.Spacing.xLarge)
@@ -79,7 +79,7 @@ struct LoginView: View {
     private var errorMessage: some View {
         if let message = viewModel.errorMessage {
             Label(message, systemImage: "exclamationmark.circle.fill")
-                .font(.footnote)
+                .font(Theme.Typography.caption)
                 .foregroundStyle(Theme.Palette.brand)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .transition(.opacity.combined(with: .move(edge: .top)))
@@ -96,7 +96,7 @@ struct LoginView: View {
                     ProgressView().tint(.white)
                 }
             }
-            .font(.headline)
+            .font(Theme.Typography.primaryButton)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.medium)
         }

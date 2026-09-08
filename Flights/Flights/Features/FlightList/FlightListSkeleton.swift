@@ -2,10 +2,17 @@ import SwiftUI
 
 /// Placeholder geometry rather than fabricated flight data, shown only during initial loading.
 struct FlightListSkeleton: View {
+    private enum Layout {
+        static let rowCount = 5
+        static let titleHeight: CGFloat = 14
+        static let subtitleHeight: CGFloat = 12
+        static let subtitleMaxWidth: CGFloat = 140
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.medium) {
-                ForEach(0..<5) { _ in
+                ForEach(0..<Layout.rowCount, id: \.self) { _ in
                     row
                 }
             }
@@ -24,10 +31,10 @@ struct FlightListSkeleton: View {
                 .frame(width: Theme.Size.dateChip, height: Theme.Size.dateChip)
             VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                 Capsule()
-                    .frame(height: 14)
+                    .frame(height: Layout.titleHeight)
                 Capsule()
-                    .frame(maxWidth: 140)
-                    .frame(height: 12)
+                    .frame(maxWidth: Layout.subtitleMaxWidth)
+                    .frame(height: Layout.subtitleHeight)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, Theme.Spacing.xLarge)

@@ -12,13 +12,13 @@ struct FlightRow: View {
             FlightDateChip(month: model.month, day: model.day, style: model.isPast ? .past : .upcoming)
             VStack(alignment: .leading, spacing: Theme.Spacing.xSmall) {
                 Text(model.title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(Theme.Typography.emphasizedBody)
                     .foregroundStyle(Theme.Palette.primaryText)
                     // The service ships a 72-character origin label, so allow a second line
                     // before truncating rather than squeezing the row.
                     .lineLimit(2)
                 Text(model.subtitle)
-                    .font(.subheadline)
+                    .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Palette.secondaryText)
                 if model.showsTodayBadge {
                     FlightTodayBadge()

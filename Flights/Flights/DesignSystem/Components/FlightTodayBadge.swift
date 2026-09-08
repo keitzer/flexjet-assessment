@@ -10,7 +10,7 @@ struct FlightTodayBadge: View {
         } icon: {
             Image(systemName: "calendar")
         }
-        .font(.subheadline.weight(.semibold))
+        .font(Theme.Typography.emphasizedBody)
         .foregroundStyle(.white)
         .padding(.horizontal, Theme.Spacing.medium)
         .padding(.vertical, Theme.Spacing.small)

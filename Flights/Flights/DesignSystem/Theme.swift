@@ -43,11 +43,15 @@ enum Theme {
         static let pill: CGFloat = 100
     }
 
-    /// Fixed sizes taken from the design.
+    /// Shared layout dimensions from the design and app-specific layout choices.
     enum Size {
         /// The date chip is a 48-point square with an 18-point month band.
         static let dateChip: CGFloat = 48
         static let dateChipMonthBand: CGFloat = 18
+        /// Keeps the sign-in form readable on wider devices.
+        static let loginFormMaxWidth: CGFloat = 480
+        /// Figma's rounded 15-point text line box; scaled by the consuming view.
+        static let detailFieldMinHeight: CGFloat = 23
     }
 }
 

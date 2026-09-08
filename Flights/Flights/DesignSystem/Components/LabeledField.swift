@@ -8,7 +8,7 @@ struct LabeledField<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xSmall) {
             Text(title)
-                .font(.footnote.weight(.medium))
+                .font(Theme.Typography.fieldLabel)
                 .foregroundStyle(Theme.Palette.secondaryText)
             content
                 .textFieldStyle(.plain)

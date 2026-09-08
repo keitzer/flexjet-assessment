@@ -15,7 +15,7 @@ struct CompleteButton: View {
             } icon: {
                 Image(systemName: isComplete ? "checkmark.seal.fill" : "checkmark.seal")
             }
-            .font(.subheadline.weight(.semibold))
+            .font(Theme.Typography.emphasizedBody)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.medium)
             .foregroundStyle(isComplete ? .white : Theme.Palette.primaryText)

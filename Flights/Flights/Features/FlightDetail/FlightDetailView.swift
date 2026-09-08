@@ -17,7 +17,7 @@ struct FlightDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.large) {
                 Text(viewModel.model.title)
-                    .font(.largeTitle.weight(.bold))
+                    .font(Theme.Typography.screenTitle)
                     .accessibilityAddTraits(.isHeader)
                 endpoints
                 fields

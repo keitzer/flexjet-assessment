@@ -4,6 +4,12 @@
 
 ## Settings and typography
 
+Shared font roles live in `Theme.Typography` (`DesignSystem/Theme+Typography.swift`), including
+titles, body text, detail fields, captions, buttons, and date chips. SF Symbol font sizes are
+separate roles so changing the text family does not change icons. Shared padding and dimensions
+use `Theme.Spacing` and `Theme.Size`; skeleton geometry and shimmer parameters stay named within
+their components. System text styles retain Dynamic Type scaling.
+
 Profile includes a persisted haptics toggle (on by default) and System / Light / Dark appearance
 (System by default). Preferences are device-local in UserDefaults and survive sign-out. Appearance
 applies at the app root, including login, with adaptive colors for text, controls and cards.

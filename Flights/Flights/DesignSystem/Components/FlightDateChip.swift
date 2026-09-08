@@ -32,13 +32,13 @@ struct FlightDateChip: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(month)
-                .font(.caption2.weight(.semibold))
+                .font(Theme.Typography.dateMonth)
                 .foregroundStyle(style.monthColor)
                 .frame(maxWidth: .infinity)
                 .frame(height: Theme.Size.dateChipMonthBand)
                 .background(style.bandColor)
             Text(day)
-                .font(.title3.weight(.bold))
+                .font(Theme.Typography.dateDay)
                 .foregroundStyle(Theme.Palette.primaryText)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Theme.Palette.chipBody)

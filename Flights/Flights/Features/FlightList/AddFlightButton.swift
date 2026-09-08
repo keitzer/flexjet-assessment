@@ -13,7 +13,7 @@ struct AddFlightButton: View {
             action()
         } label: {
             Image(systemName: "plus.square.fill")
-                .font(.title2)
+                .font(Theme.Typography.actionIcon)
                 .foregroundStyle(Theme.Palette.brand)
         }
         .buttonStyle(.plain)

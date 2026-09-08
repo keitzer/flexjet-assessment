@@ -6,7 +6,7 @@ struct CompletionIndicator: View {
 
     var body: some View {
         Image(systemName: isComplete ? "checkmark.seal.fill" : "checkmark.seal")
-            .font(.title2)
+            .font(Theme.Typography.actionIcon)
             .foregroundStyle(isComplete ? Theme.Palette.brand : Theme.Palette.primaryText)
             .contentTransition(.symbolEffect(.replace))
             .accessibilityLabel(isComplete ? "Completed" : "Not completed")

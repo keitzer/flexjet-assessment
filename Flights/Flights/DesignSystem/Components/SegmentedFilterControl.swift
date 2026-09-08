@@ -31,7 +31,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
             selection = item
         } label: {
             Text(title(item))
-                .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                .font(isSelected ? Theme.Typography.emphasizedBody : Theme.Typography.body)
                 .foregroundStyle(isSelected ? Theme.Palette.primaryText : Theme.Palette.secondaryText)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Theme.Spacing.small)
@@ -62,7 +62,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
             selection: $selection
         )
         Text("Selected: \(selection.title)")
-            .font(.footnote)
+            .font(Theme.Typography.caption)
             .foregroundStyle(.secondary)
     }
     .padding()
