@@ -215,8 +215,8 @@ on a simulator keyboard, and it compiles out of Release.
 | Area | Time |
 | --- | --- |
 | First Pass | 0.5 Hours |
-| Nice-to-haves (tests, previews, states, a11y) | X hours |
-| Additional (project setup, lint config, README) | 0.5 hours |
+| Nice-to-haves (tests, previews, states, a11y) | 1 hours |
+| Additional (project setup, lint config, README) | 1.5 hours |
 
 ## Code quality
 
