@@ -59,6 +59,8 @@ enum Theme {
         static let loginFormMaxWidth: CGFloat = 480
         /// Figma's rounded 15-point text line box; scaled by the consuming view.
         static let detailFieldMinHeight: CGFloat = 23
+        /// Stable symbol slot for the Complete/Completed button, scaled with its label.
+        static let completionIcon: CGFloat = 20
     }
 }
 

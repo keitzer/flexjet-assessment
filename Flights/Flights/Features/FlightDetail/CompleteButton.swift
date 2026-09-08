@@ -7,13 +7,15 @@ import SwiftUI
 struct CompleteButton: View {
     let isComplete: Bool
     let action: () -> Void
+    @ScaledMetric(relativeTo: .subheadline) private var iconSize = Theme.Size.completionIcon
 
     var body: some View {
         Button(action: action) {
-            Label {
-                Text(isComplete ? "Completed" : "Complete")
-            } icon: {
+            HStack(spacing: Theme.Spacing.small) {
                 Image(systemName: isComplete ? "checkmark.seal.fill" : "checkmark.seal")
+                    .frame(width: iconSize, height: iconSize)
+                    .contentTransition(.symbolEffect(.replace))
+                title
             }
             .font(Theme.Typography.emphasizedBody)
             .frame(maxWidth: .infinity)
@@ -30,12 +32,27 @@ struct CompleteButton: View {
                         lineWidth: 1
                     )
             }
-            .contentTransition(.symbolEffect(.replace))
         }
         .buttonStyle(.plain)
         .onChange(of: isComplete) { Haptics.tap() }
         .animation(.snappy(duration: 0.25), value: isComplete)
+        .accessibilityLabel(isComplete ? "Completed" : "Complete")
         .accessibilityHint(isComplete ? "Marks this flight as not complete" : "Marks this flight complete")
+    }
+
+    private var title: some View {
+        // Reserve the larger label's natural width in both states, including Dynamic Type.
+        // This keeps the centered group and icon stationary when the text changes.
+        ZStack {
+            Text("Complete")
+            Text("Completed")
+        }
+        .hidden()
+        .overlay(alignment: .leading) {
+            Text(isComplete ? "Completed" : "Complete")
+                .contentTransition(.opacity)
+        }
+        .accessibilityHidden(true)
     }
 }
 
