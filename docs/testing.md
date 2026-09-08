@@ -32,7 +32,7 @@ for the stable logic baseline.
 | Layer | Included code |
 | --- | --- |
 | Domain, DTOs and formatting | All `Models/` files except `Flight+Samples.swift` |
-| Networking, session and persistence | All `Core/` files except `MockFlightsAPIClient.swift` |
+| Networking, session, persistence and analytics | All `Core/` files except `MockFlightsAPIClient.swift` |
 | Feature view models and presenters | `Features/` files ending in `Model.swift`, including `ViewModel.swift` |
 | Navigation | All `App/Navigation/` files |
 
@@ -43,15 +43,15 @@ The gate applies when running `coverage`; merely running `test` or Cmd-U does no
 
 ## Measured baseline (2026-09-08)
 
-The full suite passed **155 executions** (including parameterized cases), with **677/683 covered
-business-logic lines (99.12%)**:
+The full suite passed **167 executions** (including parameterized cases), with **814/820 covered
+business-logic lines (99.27%)**:
 
 | Layer | Covered / executable | Line coverage |
 | --- | --- | --- |
 | Domain, DTOs and formatting | 174 / 175 | 99.43% |
-| Networking, session and persistence | 263 / 267 | 98.50% |
-| Feature view models and presenters | 226 / 227 | 99.56% |
-| Navigation | 14 / 14 | 100% |
+| Networking, session, persistence and analytics | 343 / 347 | 98.85% |
+| Feature view models and presenters | 267 / 268 | 99.63% |
+| Navigation | 30 / 30 | 100% |
 
 Re-run the lane for current results. These numbers include infrastructure fallback code and do not
 exclude uncovered production methods within the measured layers.
@@ -62,6 +62,7 @@ exclude uncovered production methods within the measured layers.
 
 - `App/Navigation/`: typed navigation state.
 - `Core/Networking/`, `Core/Session/`, `Core/Completion/`, `Core/Favorites/`, `Core/Flights/`: transport, persistence and cache.
+- `Core/Analytics/`: versioned events, serialization, metadata allowlists and provider contract.
 - `Models/Domain/`, `Models/DTO/`, `Models/Formatting/`: rules, mapping and presentation values.
 - `Features/Login/`, `Features/FlightList/`, `Features/FlightDetail/`, `Features/Favorites/`: feature behaviour.
 - `DesignSystem/`: preferences and background color-resolution regressions.
@@ -105,6 +106,14 @@ and route-to-flight back-stack navigation. Cache tests count API calls across ro
 empty results and explicit refresh, reject cross-session reuse and stale writes, and verify
 classification uses the current clock. Favorites reuse the tested request lifecycle and
 calendar rules rather than implementing separate networking or date logic.
+
+## Analytics checks
+
+Recording-provider tests assert stable event names, timestamps, typed JSON values and reserved
+metadata, identifier allowlists, favorite/completion reversals, rejected upcoming completion,
+authentication success/failure/canceled or superseded responses, session restoration and transition
+deduplication, category interactions and navigation contexts. Native settings/control wiring and
+screen appearances require a manual log pass. See the [event catalog](analytics.md).
 
 ## Interpreting coverage
 

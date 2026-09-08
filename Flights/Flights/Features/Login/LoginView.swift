@@ -3,6 +3,7 @@ import SwiftUI
 /// The sign-in screen. No design was supplied, so this follows the same card, colour and
 /// spacing tokens as the Flights screens.
 struct LoginView: View {
+    @Environment(\.analytics) private var analytics
     @State private var viewModel: LoginViewModel
     @State private var signInTask: Task<Void, Never>?
     @FocusState private var focusedField: Field?
@@ -16,7 +17,8 @@ struct LoginView: View {
         _viewModel = State(
             wrappedValue: LoginViewModel(
                 apiClient: dependencies.apiClient,
-                session: dependencies.session
+                session: dependencies.session,
+                analytics: dependencies.analytics
             )
         )
     }
@@ -58,6 +60,7 @@ struct LoginView: View {
         }
         .background { LoginBackground().ignoresSafeArea() }
         .onDisappear { signInTask?.cancel() }
+        .analyticsPage(.login)
     }
 
     private var form: some View {
@@ -157,6 +160,7 @@ struct LoginView: View {
 
     private func submit() {
         guard signInTask == nil, viewModel.canSubmit else { return }
+        analytics.button(.signIn, page: .login)
         Haptics.tap()
         focusedField = nil
         signInTask = Task {

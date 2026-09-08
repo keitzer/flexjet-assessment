@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct FavoritesListView: View {
+    @Environment(\.analytics) private var analytics
     let store: FavoriteRoutesStore
     @Environment(FlightsRouter.self) private var router
 
@@ -17,6 +18,7 @@ struct FavoritesListView: View {
                     LazyVStack(spacing: Theme.Spacing.medium) {
                         ForEach(store.routes) { route in
                             Button {
+                                analytics.button(.openRoute, page: .favorites, context: .route(route.id))
                                 Haptics.tap()
                                 router.showRoute(route)
                             } label: {
@@ -30,6 +32,7 @@ struct FavoritesListView: View {
             }
         }
         .background(Theme.Palette.screen)
+        .analyticsPage(.favorites)
         .navigationTitle("Favorites")
     }
 

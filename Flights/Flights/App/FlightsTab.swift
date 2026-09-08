@@ -7,7 +7,12 @@ import SwiftUI
 struct FlightsTab: View {
     let dependencies: AppDependencies
 
-    @State private var router = FlightsRouter()
+    @State private var router: FlightsRouter
+
+    init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+        _router = State(wrappedValue: FlightsRouter(analytics: dependencies.analytics, rootPage: .flights))
+    }
 
     var body: some View {
         @Bindable var router = router

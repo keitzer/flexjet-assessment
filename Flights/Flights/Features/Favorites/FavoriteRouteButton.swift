@@ -4,13 +4,17 @@ import SwiftUI
 struct FavoriteRouteButton: View {
     let route: FavoriteRoute
     let store: FavoriteRoutesStore
+    var source: AnalyticsPage = .routeDetails
+    var context: AnalyticsContext?
+    @Environment(\.analytics) private var analytics
 
     private var isFavorite: Bool { store.contains(route.id) }
 
     var body: some View {
         Button {
+            analytics.button(.favoriteRoute, page: source, context: context ?? .route(route.id))
             Haptics.tap()
-            store.toggle(route)
+            store.toggle(route, source: source, context: context)
         } label: {
             Image(systemName: isFavorite ? "heart.fill" : "heart")
                 .foregroundStyle(Theme.Palette.brand)

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct FavoriteRouteDetailView: View {
+    @Environment(\.analytics) private var analytics
     let route: FavoriteRoute
     private let favorites: FavoriteRoutesStore
     @State private var viewModel: FlightListViewModel
@@ -13,7 +14,8 @@ struct FavoriteRouteDetailView: View {
             session: dependencies.session,
             completion: dependencies.completion,
             routeFilter: route.id,
-            cache: dependencies.flightsCache
+            cache: dependencies.flightsCache,
+                analytics: dependencies.analytics
         ))
     }
 
@@ -28,7 +30,8 @@ struct FavoriteRouteDetailView: View {
                 SegmentedFilterControl(
                     items: FlightCategory.allCases,
                     title: \.title,
-                    selection: $viewModel.selectedCategory
+                    selection: $viewModel.selectedCategory,
+                onSelect: viewModel.recordCategoryPress
                 )
             }
             .padding(.horizontal, Theme.Spacing.large)
@@ -36,6 +39,7 @@ struct FavoriteRouteDetailView: View {
         }
         .padding(.top, Theme.Spacing.large)
         .background(Theme.Palette.screen)
+        .analyticsPage(.routeDetails, context: .route(route.id))
         .navigationTitle(route.id.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -44,7 +48,10 @@ struct FavoriteRouteDetailView: View {
             }
         }
         .task { await viewModel.loadIfNeeded() }
-        .refreshable { await viewModel.load() }
+        .refreshable {
+            analytics.button(.refreshFlights, page: viewModel.analyticsPage, context: viewModel.analyticsContext)
+            await viewModel.load()
+        }
         .refreshFlightTime(departures: viewModel.flights.map(\.departure), refresh: viewModel.refreshTime)
     }
 }

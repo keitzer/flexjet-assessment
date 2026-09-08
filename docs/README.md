@@ -8,6 +8,7 @@
 | [Development](development.md) | Setup, CLI filters, reports, tests, lint, debug launch |
 | [Testing and coverage](testing.md) | Business-layer coverage gate, test layout and time-zone guarantees |
 | [Service and behavior](service-and-behavior.md) | API quirks, validation, dates, time zones, completion |
+| [Analytics](analytics.md) | Event catalog, provider replacement and future-feature requirements |
 | [UI notes](ui-notes.md) | Settings, typography, enhancements, known gaps |
 
 ## Architecture decision records
@@ -24,3 +25,4 @@ superseded record.
 | [0004](adr/0004-local-persistence.md) | Keychain sessions and device-local preferences | Accepted |
 | [0005](adr/0005-quality-tooling.md) | Strict linting and a reproducible CLI test lane | Accepted |
 | [0006](adr/0006-favorite-routes.md) | Directional route favorites, local persistence and filtered flights | Accepted |
+| [0007](adr/0007-analytics.md) | Structured analytics with an injectable provider | Accepted |

@@ -11,6 +11,7 @@ final class FlightDetailViewModel {
     let flight: Flight
 
     private let completion: FlightCompletionStore
+    private let analytics: Analytics
     private let presenter: FlightDetailPresenter
     private let classifier: FlightClassifier
     private let now: @Sendable () -> Date
@@ -21,10 +22,12 @@ final class FlightDetailViewModel {
         completion: FlightCompletionStore,
         presenter: FlightDetailPresenter = FlightDetailPresenter(),
         classifier: FlightClassifier = FlightClassifier(),
+        analytics: Analytics = .disabled,
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.flight = flight
         self.completion = completion
+        self.analytics = analytics
         self.presenter = presenter
         self.classifier = classifier
         self.now = now
@@ -56,6 +59,14 @@ final class FlightDetailViewModel {
     func toggleCompletion() {
         refreshTime()
         guard canToggleCompletion else { return }
+        let wasComplete = isComplete
         completion.toggle(flight.id)
+        analytics.change(
+            .flightCompletion,
+            page: .flightDetails,
+            from: .bool(wasComplete),
+            to: .bool(isComplete),
+            context: .flight(flight)
+        )
     }
 }

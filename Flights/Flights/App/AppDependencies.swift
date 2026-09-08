@@ -11,6 +11,7 @@ struct AppDependencies {
     let completion: FlightCompletionStore
     let favorites: FavoriteRoutesStore
     let flightsCache: FlightsCache
+    let analytics: Analytics
 
     /// The configuration the shipping app runs with.
     ///
@@ -19,12 +20,14 @@ struct AppDependencies {
     /// be inspected without typing credentials on a simulator keyboard — and it compiles out of
     /// Release entirely.
     static func live() -> Self {
-        Self(
+        let analytics = Analytics(logger: ConsoleAnalyticsLogger())
+        return Self(
             apiClient: LiveFlightsAPIClient(),
-            session: SessionStore(storage: launchStorage()),
+            session: SessionStore(storage: launchStorage(), analytics: analytics),
             completion: FlightCompletionStore(),
-            favorites: FavoriteRoutesStore(storage: UserDefaultsFavoriteRoutesStorage()),
-            flightsCache: FlightsCache()
+            favorites: FavoriteRoutesStore(storage: UserDefaultsFavoriteRoutesStorage(), analytics: analytics),
+            flightsCache: FlightsCache(),
+            analytics: analytics
         )
     }
 
@@ -49,7 +52,8 @@ struct AppDependencies {
             session: SessionStore(storage: InMemoryTokenStorage(token: "preview-token")),
             completion: FlightCompletionStore(storage: InMemoryCompletionStorage(ids: completedIDs)),
             favorites: FavoriteRoutesStore(storage: InMemoryFavoriteRoutesStorage(routes: favoriteRoutes)),
-            flightsCache: FlightsCache()
+            flightsCache: FlightsCache(),
+            analytics: .disabled
         )
     }
     #endif

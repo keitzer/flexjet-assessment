@@ -18,13 +18,14 @@ struct PlaceholderScreen: View {
             }
             .navigationTitle(title)
         }
+        .analyticsPage(.contracts)
     }
 }
 
 #Preview("Placeholder") {
     PlaceholderScreen(
-        title: "Favorites",
-        systemImage: "heart",
-        message: "Flights you save will appear here."
+        title: "Contracts",
+        systemImage: "signature",
+        message: "Your signed contracts will appear here."
     )
 }

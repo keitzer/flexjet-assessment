@@ -18,8 +18,10 @@ final class SessionStore {
     private(set) var revision = UUID()
 
     private let storage: TokenStorage
+    private let analytics: Analytics
 
-    init(storage: TokenStorage = KeychainTokenStorage()) {
+    init(storage: TokenStorage = KeychainTokenStorage(), analytics: Analytics = .disabled) {
+        self.analytics = analytics
         self.storage = storage
         // Restoring here means a returning user skips the login screen.
         self.token = storage.load()
@@ -30,16 +32,20 @@ final class SessionStore {
     }
 
     func beginSession(token: String) {
+        let wasSignedIn = isSignedIn
         revision = UUID()
         storage.save(token)
         self.token = token
+        analytics.change(.session, page: .app, from: .bool(wasSignedIn), to: .bool(true))
     }
 
     /// Clears the session. Called on explicit sign-out and whenever the service rejects the
     /// token with a 401.
     func endSession() {
+        let wasSignedIn = isSignedIn
         revision = UUID()
         storage.clear()
         token = nil
+        analytics.change(.session, page: .app, from: .bool(wasSignedIn), to: .bool(false))
     }
 }

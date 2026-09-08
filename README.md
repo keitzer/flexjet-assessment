@@ -41,7 +41,7 @@ test target, idle date-based screens do not refresh on a timer, and Proxima Nova
 | Area | Recorded time |
 | --- | --- |
 | First pass (Login + Flights; not tracked separately) | 0.5 hours |
-| Nice-to-haves (tests, previews, states, accessibility) | 1+ hours |
+| Nice-to-haves (tests, previews, states, accessibility) | 2+ hours |
 | Additional (project setup, lint config, README) | 1.5 hours |
 
 These are the previously recorded figures; subsequent iterations have not been added.

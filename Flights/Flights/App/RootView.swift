@@ -23,6 +23,7 @@ struct RootView: View {
         .animation(.snappy(duration: 0.3), value: dependencies.session.isSignedIn)
         .transition(.opacity)
         .environment(\.dependencies, dependencies)
+        .environment(\.analytics, dependencies.analytics)
         .preferredColorScheme(appearance.colorScheme)
     }
 }
@@ -35,7 +36,8 @@ struct RootView: View {
             session: SessionStore(storage: InMemoryTokenStorage()),
             completion: FlightCompletionStore(storage: InMemoryCompletionStorage()),
             favorites: FavoriteRoutesStore(storage: InMemoryFavoriteRoutesStorage()),
-            flightsCache: FlightsCache()
+            flightsCache: FlightsCache(),
+            analytics: .disabled
         )
     )
 }

@@ -22,6 +22,11 @@ struct FlightResultsView: View {
         case .failed(let error):
             ErrorStateView(error: error) {
                 guard retryTask == nil else { return }
+                viewModel.analytics.button(
+                    .retryFlights,
+                    page: viewModel.analyticsPage,
+                    context: viewModel.analyticsContext
+                )
                 Haptics.tap()
                 retryTask = Task {
                     defer { retryTask = nil }
@@ -42,6 +47,11 @@ struct FlightResultsView: View {
             LazyVStack(spacing: Theme.Spacing.medium) {
                 ForEach(viewModel.items) { item in
                     Button {
+                        viewModel.analytics.button(
+                            .openFlight,
+                            page: viewModel.analyticsPage,
+                            context: .flight(item.flight)
+                        )
                         Haptics.tap()
                         router.showDetail(item.flight)
                     } label: {

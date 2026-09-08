@@ -9,6 +9,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
     let items: [Item]
     let title: (Item) -> String
     @Binding var selection: Item
+    var onSelect: (Item) -> Void = { _ in }
 
     @Namespace private var pillNamespace
 
@@ -28,6 +29,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
     private func segment(for item: Item) -> some View {
         let isSelected = item == selection
         return Button {
+            onSelect(item)
             selection = item
         } label: {
             Text(title(item))

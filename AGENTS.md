@@ -54,6 +54,17 @@
 - The supplied service documentation has no completion endpoint. Document the chosen local state
   and persistence behavior rather than assuming the service supports completion updates.
 
+## Analytics for every feature
+
+- Instrument new screens with `.analyticsPage`, meaningful interactions with `Analytics.button`,
+  and actual status changes with `Analytics.change`. Record outcomes at the state owner, not by
+  assuming a tap succeeded. Avoid duplicate events and unchanged-value status events.
+- Inject the existing wrapper; vendor adapters belong behind `AnalyticsLogging`, never in features.
+  Use stable typed identifiers and allowlisted route/flight context. Never log credentials, tokens,
+  entered usernames, raw API payloads, raw errors or full domain models.
+- Add recording-logger tests for important event payloads and outcomes; update `docs/analytics.md`.
+  See `docs/adr/0007-analytics.md` for the provider boundary and delivery limitations.
+
 ## Quality and validation
 
 - Run `swiftlint` from the repository root. `.swiftlint.yml` is the source of truth for lint rules

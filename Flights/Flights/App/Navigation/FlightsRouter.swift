@@ -7,6 +7,20 @@ import Observation
 nonisolated enum FlightRoute: Hashable, Sendable {
     case detail(Flight)
     case favoriteRoute(FavoriteRoute)
+
+    var analyticsPage: AnalyticsPage {
+        switch self {
+        case .detail: .flightDetails
+        case .favoriteRoute: .routeDetails
+        }
+    }
+
+    var analyticsContext: AnalyticsContext {
+        switch self {
+        case .detail(let flight): .flight(flight)
+        case .favoriteRoute(let route): .route(route.id)
+        }
+    }
 }
 
 /// Owns the Flights tab's navigation stack.
@@ -18,7 +32,24 @@ nonisolated enum FlightRoute: Hashable, Sendable {
 @Observable
 @MainActor
 final class FlightsRouter {
-    var path: [FlightRoute] = []
+    var path: [FlightRoute] = [] {
+        didSet {
+            analytics.change(
+                .navigationDepth,
+                page: path.last?.analyticsPage ?? rootPage,
+                from: .integer(oldValue.count),
+                to: .integer(path.count),
+                context: path.last?.analyticsContext ?? .empty
+            )
+        }
+    }
+    private let analytics: Analytics
+    private let rootPage: AnalyticsPage
+
+    init(analytics: Analytics = .disabled, rootPage: AnalyticsPage = .flights) {
+        self.analytics = analytics
+        self.rootPage = rootPage
+    }
 
     func showDetail(_ flight: Flight) {
         path.append(.detail(flight))

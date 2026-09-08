@@ -12,6 +12,14 @@ final class LoginViewModel {
         case editing
         case submitting
         case failed(APIError)
+
+        var analyticsName: String {
+            switch self {
+            case .editing: "editing"
+            case .submitting: "submitting"
+            case .failed(let error): "failed_\(error.analyticsCode)"
+            }
+        }
     }
 
     var username = "" {
@@ -20,12 +28,23 @@ final class LoginViewModel {
     var password = "" {
         didSet { clearErrorIfNeeded() }
     }
-    private(set) var state: ViewState = .editing
+    private(set) var state: ViewState = .editing {
+        didSet {
+            analytics.change(
+                .authentication,
+                page: .login,
+                from: .string(oldValue.analyticsName),
+                to: .string(state.analyticsName)
+            )
+        }
+    }
 
     private let apiClient: FlightsAPIClient
     private let session: SessionStore
+    private let analytics: Analytics
 
-    init(apiClient: FlightsAPIClient, session: SessionStore) {
+    init(apiClient: FlightsAPIClient, session: SessionStore, analytics: Analytics = .disabled) {
+        self.analytics = analytics
         self.apiClient = apiClient
         self.session = session
     }
@@ -61,6 +80,12 @@ final class LoginViewModel {
                 return
             }
             // Publishing the token flips the root view over to the main tabs.
+            analytics.change(
+                .authentication,
+                page: .login,
+                from: .string("submitting"),
+                to: .string("signed_in")
+            )
             session.beginSession(token: token)
         } catch {
             guard session.revision == sessionRevision, !Task.isCancelled, !(error is CancellationError) else {

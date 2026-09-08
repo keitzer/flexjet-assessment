@@ -6,9 +6,11 @@ import SwiftUI
 /// rounded container come from SF Symbols rather than being rebuilt by hand.
 struct AddFlightButton: View {
     let action: () -> Void
+    @Environment(\.analytics) private var analytics
 
     var body: some View {
         Button {
+            analytics.button(.addFlight, page: .flights)
             Haptics.tap()
             action()
         } label: {
@@ -24,6 +26,7 @@ struct AddFlightButton: View {
 /// Stands in for the unspecified "add flight" flow.
 struct AddFlightPlaceholder: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.analytics) private var analytics
 
     var body: some View {
         NavigationStack {
@@ -35,6 +38,7 @@ struct AddFlightPlaceholder: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
+                        analytics.button(.dismissAddFlight, page: .addFlight)
                         Haptics.tap()
                         dismiss()
                     }
@@ -43,6 +47,7 @@ struct AddFlightPlaceholder: View {
             }
         }
         .presentationDetents([.medium])
+        .analyticsPage(.addFlight)
     }
 }
 

@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Account actions and device-local settings.
 struct ProfileScreen: View {
+    @Environment(\.analytics) private var analytics
     @Environment(\.dependencies) private var dependencies
     @AppStorage(AppPreferences.hapticsKey) private var hapticsEnabled = true
     @AppStorage(AppPreferences.appearanceKey) private var appearance = AppAppearance.system
@@ -16,14 +17,29 @@ struct ProfileScreen: View {
                 settings
                 Section {
                     Button("Sign Out", role: .destructive) {
+                        analytics.button(.signOut, page: .profile)
                         Haptics.tap()
                         dependencies.session.endSession()
                     }
                 }
             }
             .navigationTitle("Profile")
-            .onChange(of: hapticsEnabled) { Haptics.tap() }
-            .onChange(of: appearance) { Haptics.tap() }
+            .analyticsPage(.profile)
+            .onChange(of: hapticsEnabled) { oldValue, newValue in
+                analytics.button(.toggleHaptics, page: .profile)
+                analytics.change(.haptics, page: .profile, from: .bool(oldValue), to: .bool(newValue))
+                Haptics.tap()
+            }
+            .onChange(of: appearance) { oldValue, newValue in
+                analytics.button(.selectTheme, page: .profile)
+                analytics.change(
+                    .theme,
+                    page: .profile,
+                    from: .string(oldValue.rawValue),
+                    to: .string(newValue.rawValue)
+                )
+                Haptics.tap()
+            }
         }
     }
 

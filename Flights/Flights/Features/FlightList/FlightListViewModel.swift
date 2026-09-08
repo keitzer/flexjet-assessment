@@ -13,10 +13,39 @@ final class FlightListViewModel {
         case loading
         case loaded
         case failed(APIError)
+
+        var analyticsName: String {
+            switch self {
+            case .idle: "idle"
+            case .loading: "loading"
+            case .loaded: "loaded"
+            case .failed(let error): "failed_\(error.analyticsCode)"
+            }
+        }
     }
 
-    private(set) var state: ViewState = .idle
-    var selectedCategory: FlightCategory = .upcoming
+    private(set) var state: ViewState = .idle {
+        didSet {
+            analytics.change(
+                .flightLoading,
+                page: analyticsPage,
+                from: .string(oldValue.analyticsName),
+                to: .string(state.analyticsName),
+                context: analyticsContext
+            )
+        }
+    }
+    var selectedCategory: FlightCategory = .upcoming {
+        didSet {
+            analytics.change(
+                .category,
+                page: analyticsPage,
+                from: .string(oldValue.rawValue),
+                to: .string(selectedCategory.rawValue),
+                context: analyticsContext
+            )
+        }
+    }
 
     private(set) var flights: [Flight] = []
 
@@ -26,6 +55,10 @@ final class FlightListViewModel {
     private let classifier: FlightClassifier
     private let routeFilter: RouteIdentity?
     private let cache: FlightsCache
+    let analytics: Analytics
+
+    var analyticsPage: AnalyticsPage { routeFilter == nil ? .flights : .routeDetails }
+    var analyticsContext: AnalyticsContext { routeFilter.map(AnalyticsContext.route) ?? .empty }
     private let builder: FlightRowModelBuilder
     /// Injected so tests can pin "now" and previews stay deterministic.
     private let now: @Sendable () -> Date
@@ -40,6 +73,7 @@ final class FlightListViewModel {
         builder: FlightRowModelBuilder = FlightRowModelBuilder(),
         routeFilter: RouteIdentity? = nil,
         cache: FlightsCache = FlightsCache(),
+        analytics: Analytics = .disabled,
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.apiClient = apiClient
@@ -48,9 +82,16 @@ final class FlightListViewModel {
         self.classifier = classifier
         self.routeFilter = routeFilter
         self.cache = cache
+        self.analytics = analytics
         self.builder = builder
         self.now = now
         self.referenceDate = now()
+    }
+
+    func recordCategoryPress(_ category: FlightCategory) {
+        var properties = analyticsContext.properties
+        properties["category"] = .string(category.rawValue)
+        analytics.button(.selectCategory, page: analyticsPage, context: AnalyticsContext(properties: properties))
     }
 
     /// Invalidates date-dependent presentation after clock or environment changes.

@@ -28,3 +28,6 @@ Features/     Login, FlightList, FlightDetail, Favorites, Placeholders
 - [ADR-0004: Local persistence](adr/0004-local-persistence.md)
 - [ADR-0005: Quality tooling](adr/0005-quality-tooling.md)
 - [ADR-0006: Favorite routes](adr/0006-favorite-routes.md)
+
+Analytics uses an injected provider boundary, shared typed events and state-owned outcomes.
+See the [event catalog](analytics.md) and [ADR 0007](adr/0007-analytics.md).

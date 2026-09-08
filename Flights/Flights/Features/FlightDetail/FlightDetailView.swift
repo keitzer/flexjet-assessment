@@ -2,6 +2,7 @@ import SwiftUI
 
 /// The flight detail screen.
 struct FlightDetailView: View {
+    @Environment(\.analytics) private var analytics
     @State private var viewModel: FlightDetailViewModel
     private let favorites: FavoriteRoutesStore
 
@@ -10,7 +11,8 @@ struct FlightDetailView: View {
         _viewModel = State(
             wrappedValue: FlightDetailViewModel(
                 flight: flight,
-                completion: dependencies.completion
+                completion: dependencies.completion,
+                analytics: dependencies.analytics
             )
         )
     }
@@ -28,6 +30,7 @@ struct FlightDetailView: View {
                 fields
                 if viewModel.canToggleCompletion {
                     CompleteButton(isComplete: viewModel.isComplete) {
+                        analytics.button(.completeFlight, page: .flightDetails, context: .flight(viewModel.flight))
                         viewModel.toggleCompletion()
                     }
                     .padding(.top, Theme.Spacing.small)
@@ -36,10 +39,16 @@ struct FlightDetailView: View {
             .padding(Theme.Spacing.large)
         }
         .background(Theme.Palette.screen)
+        .analyticsPage(.flightDetails, context: .flight(viewModel.flight))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                FavoriteRouteButton(route: FavoriteRoute(flight: viewModel.flight), store: favorites)
+                FavoriteRouteButton(
+                    route: FavoriteRoute(flight: viewModel.flight),
+                    store: favorites,
+                    source: .flightDetails,
+                    context: .flight(viewModel.flight)
+                )
             }
         }
         .refreshFlightTime(departures: [viewModel.flight.departure], refresh: viewModel.refreshTime)
