@@ -7,22 +7,22 @@ import SwiftUI
 enum Theme {
     enum Palette {
         /// Flexjet maroon, taken from the Figma export.
-        static let brand = Color(hex: 0x93272C)
+        static let brand = Color(light: 0x93272C, dark: 0xBC4B55)
         /// Month-band tint on an upcoming flight's date chip: the brand at 18%.
         static let brandSoft = brand.opacity(0.18)
 
         static let screen = Color(.systemBackground)
         static let card = Color(.secondarySystemGroupedBackground)
-        static let cardBorder = Color(hex: 0xE5E5E5)
+        static let cardBorder = Color(light: 0xE5E5E5, dark: 0x48484A)
         /// The near-white lower portion of a date chip.
-        static let chipBody = Color(hex: 0xFAFAFA)
+        static let chipBody = Color(light: 0xFAFAFA, dark: 0x2C2C2E)
 
         /// Neutral month band used by past flights, which are de-emphasised.
-        static let neutralChip = Color(hex: 0xE5E5E5)
-        static let segmentTrack = Color(hex: 0x767680).opacity(0.12)
+        static let neutralChip = Color(light: 0xE5E5E5, dark: 0x48484A)
+        static let segmentTrack = Color(.tertiarySystemFill)
 
-        static let primaryText = Color(hex: 0x262626)
-        static let secondaryText = Color(hex: 0x737373)
+        static let primaryText = Color(light: 0x262626, dark: 0xF2F2F7)
+        static let secondaryText = Color(light: 0x737373, dark: 0xAEAEB2)
     }
 
     enum Spacing {
@@ -49,6 +49,19 @@ enum Theme {
 }
 
 extension Color {
+    /// Resolves against the presentation's appearance, including the user's in-app override.
+    init(light: UInt32, dark: UInt32) {
+        self.init(uiColor: UIColor { traits in
+            let hex = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(
+                red: Double((hex >> 16) & 0xFF) / 255,
+                green: Double((hex >> 8) & 0xFF) / 255,
+                blue: Double(hex & 0xFF) / 255,
+                alpha: 1
+            )
+        })
+    }
+
     /// Builds a color from a `0xRRGGBB` literal, keeping design tokens readable.
     init(hex: UInt32) {
         self.init(

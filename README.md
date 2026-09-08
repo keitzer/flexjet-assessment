@@ -137,6 +137,19 @@ the value being formatted, which is the opposite of how it reads. Formatting `no
 flight's date as the anchor is what yields "2w ago" rather than "in 2w"; the tests pin both
 directions so it cannot silently regress.
 
+## Profile settings
+
+Profile includes a persisted haptics toggle (on by default) and System / Light / Dark appearance
+(System by default). Preferences are device-local in UserDefaults and survive sign-out. Appearance
+applies at the app root, including login, with adaptive colors for text, controls and cards.
+All app-generated haptics pass through the same preference check; native controls may provide
+their own system feedback.
+
+The supplied Figma detail fields use Proxima Nova Bold at 15 px with a 23 px rounded line box.
+No Proxima Nova font files are supplied in the repository, so the app still uses the system font.
+Detail fields use bold 15-point text, a scaled 23-point minimum row height, and 16-point row gaps.
+Exact glyph shapes and text metrics require bundling the actual font files.
+
 ## Completion state
 
 The service exposes no write endpoint, so completion is device-local: `FlightCompletionStore`

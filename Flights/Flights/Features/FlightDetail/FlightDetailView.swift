@@ -43,7 +43,7 @@ struct FlightDetailView: View {
 
     // The design lists the fields as plain rows with no separators.
     private var fields: some View {
-        VStack(spacing: Theme.Spacing.medium) {
+        VStack(spacing: Theme.Spacing.large) {
             ForEach(viewModel.model.fields) { field in
                 DetailFieldRow(field: field)
             }

@@ -21,7 +21,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
         .padding(Theme.Spacing.xSmall)
         .background(Theme.Palette.segmentTrack, in: .capsule)
         .accessibilityElement(children: .contain)
-        .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: selection)
+        .onChange(of: selection) { Haptics.tap() }
         .animation(.snappy(duration: 0.28), value: selection)
     }
 

@@ -6,6 +6,7 @@ import SwiftUI
 /// a sign-out anywhere in the app — including one triggered by a 401 — returns the user here.
 struct RootView: View {
     let dependencies: AppDependencies
+    @AppStorage(AppPreferences.appearanceKey) private var appearance = AppAppearance.system
 
     var body: some View {
         Group {
@@ -22,6 +23,7 @@ struct RootView: View {
         .animation(.snappy(duration: 0.3), value: dependencies.session.isSignedIn)
         .transition(.opacity)
         .environment(\.dependencies, dependencies)
+        .preferredColorScheme(appearance.colorScheme)
     }
 }
 

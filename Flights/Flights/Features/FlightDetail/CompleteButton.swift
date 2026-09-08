@@ -33,7 +33,7 @@ struct CompleteButton: View {
             .contentTransition(.symbolEffect(.replace))
         }
         .buttonStyle(.plain)
-        .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: isComplete)
+        .onChange(of: isComplete) { Haptics.tap() }
         .animation(.snappy(duration: 0.25), value: isComplete)
         .accessibilityHint(isComplete ? "Marks this flight as not complete" : "Marks this flight complete")
     }
