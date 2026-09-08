@@ -31,18 +31,18 @@ struct FlightRequestLifecycleTests {
         #expect(model.flights == flights)
     }
 
-    @Test("An old 401 cannot sign out a new session")
-    func oldSessionFailure() async {
+    @Test("An old 401 cannot sign out a new session", arguments: ["old-token", "new-token"])
+    func oldSessionFailure(newToken: String) async {
         let client = ControlledFlightsAPIClient()
         let session = SessionStore(storage: InMemoryTokenStorage(token: "old-token"))
         let model = model(client: client, session: session)
         let request = Task { await model.load() }
         await client.waitForRequests(1)
         session.endSession()
-        session.beginSession(token: "new-token")
+        session.beginSession(token: newToken)
         await client.finish(0, with: .failure(.sessionExpired))
         await request.value
-        #expect(session.token == "new-token")
+        #expect(session.token == newToken)
         #expect(model.state != .failed(.sessionExpired))
     }
 

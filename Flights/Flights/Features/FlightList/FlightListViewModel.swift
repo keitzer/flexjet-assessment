@@ -58,7 +58,8 @@ final class FlightListViewModel {
     /// flight complete on the detail screen and comes back.
     var items: [FlightListItem] {
         let instant = now()
-        return visibleFlights.map { flight in
+        let visible = classifier.partition(flights, now: instant)[selectedCategory] ?? []
+        return visible.map { flight in
             FlightListItem(
                 flight: flight,
                 model: builder.make(
@@ -89,17 +90,19 @@ final class FlightListViewModel {
             return
         }
         let previousState: ViewState = state == .loading ? .idle : state
+        let sessionRevision = session.revision
         if state != .loaded {
             state = .loading
         }
         do {
+            try Task.checkCancellation()
             let result = try await apiClient.flights(token: token)
             try Task.checkCancellation()
-            guard latestRequestID == requestID, session.token == token else { return }
+            guard latestRequestID == requestID, session.revision == sessionRevision else { return }
             flights = result
             state = .loaded
         } catch {
-            guard latestRequestID == requestID, session.token == token else { return }
+            guard latestRequestID == requestID, session.revision == sessionRevision else { return }
             if error is CancellationError || Task.isCancelled {
                 state = previousState
                 return

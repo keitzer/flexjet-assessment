@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 
 /// Persists the bearer token between launches.
 ///
@@ -11,23 +12,22 @@ nonisolated protocol TokenStorage: Sendable {
 }
 
 /// Non-persistent storage for previews and tests.
-nonisolated final class InMemoryTokenStorage: TokenStorage, @unchecked Sendable {
-    private let lock = NSLock()
-    private var token: String?
+nonisolated final class InMemoryTokenStorage: TokenStorage {
+    private let token: Mutex<String?>
 
     init(token: String? = nil) {
-        self.token = token
+        self.token = Mutex(token)
     }
 
     func load() -> String? {
-        lock.withLock { token }
+        token.withLock { $0 }
     }
 
     func save(_ token: String) {
-        lock.withLock { self.token = token }
+        self.token.withLock { $0 = token }
     }
 
     func clear() {
-        lock.withLock { token = nil }
+        token.withLock { $0 = nil }
     }
 }

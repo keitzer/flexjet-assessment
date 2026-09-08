@@ -47,18 +47,26 @@ final class LoginViewModel {
 
     func signIn() async {
         guard canSubmit else { return }
+        let sessionRevision = session.revision
         state = .submitting
         do {
+            try Task.checkCancellation()
             let token = try await apiClient.signIn(
                 username: username.trimmingCharacters(in: .whitespaces),
                 password: password
             )
             try Task.checkCancellation()
+            guard session.revision == sessionRevision else {
+                state = .editing
+                return
+            }
             // Publishing the token flips the root view over to the main tabs.
             session.beginSession(token: token)
-        } catch is CancellationError {
-            state = .editing
         } catch {
+            guard session.revision == sessionRevision, !Task.isCancelled, !(error is CancellationError) else {
+                state = .editing
+                return
+            }
             password = ""
             state = .failed(.from(error))
         }

@@ -13,6 +13,7 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
         self.session = session
     }
 
+    @concurrent
     func signIn(username: String, password: String) async throws -> String {
         var request = URLRequest(url: baseURL.appending(path: "api/signIn"))
         request.httpMethod = "POST"
@@ -28,6 +29,7 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
         return token
     }
 
+    @concurrent
     func flights(token: String) async throws -> [Flight] {
         var request = URLRequest(url: baseURL.appending(path: "api/flights"))
         request.httpMethod = "GET"
@@ -67,6 +69,8 @@ nonisolated struct LiveFlightsAPIClient: FlightsAPIClient {
     private func decode<Value: Decodable>(_ type: Value.Type, from data: Data) throws -> Value {
         do {
             return try JSONDecoder().decode(type, from: data)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             throw APIError.decoding
         }

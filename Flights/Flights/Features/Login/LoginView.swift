@@ -4,6 +4,7 @@ import SwiftUI
 /// spacing tokens as the Flights screens.
 struct LoginView: View {
     @State private var viewModel: LoginViewModel
+    @State private var signInTask: Task<Void, Never>?
     @FocusState private var focusedField: Field?
 
     private enum Field: Hashable {
@@ -34,6 +35,7 @@ struct LoginView: View {
         }
         .background(Theme.Palette.screen)
         .scrollDismissesKeyboard(.interactively)
+        .onDisappear { signInTask?.cancel() }
     }
 
     private var header: some View {
@@ -105,8 +107,12 @@ struct LoginView: View {
     }
 
     private func submit() {
+        guard signInTask == nil, viewModel.canSubmit else { return }
         focusedField = nil
-        Task { await viewModel.signIn() }
+        signInTask = Task {
+            defer { signInTask = nil }
+            await viewModel.signIn()
+        }
     }
 }
 

@@ -14,6 +14,8 @@ import Observation
 final class SessionStore {
     /// The current token, or `nil` when signed out.
     private(set) var token: String?
+    /// Distinguishes session lifetimes even when the service returns the same token again.
+    private(set) var revision = UUID()
 
     private let storage: TokenStorage
 
@@ -28,6 +30,7 @@ final class SessionStore {
     }
 
     func beginSession(token: String) {
+        revision = UUID()
         storage.save(token)
         self.token = token
     }
@@ -35,6 +38,7 @@ final class SessionStore {
     /// Clears the session. Called on explicit sign-out and whenever the service rejects the
     /// token with a 401.
     func endSession() {
+        revision = UUID()
         storage.clear()
         token = nil
     }

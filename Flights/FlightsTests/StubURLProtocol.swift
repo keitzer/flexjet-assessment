@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 
 /// A request as it reached the transport layer.
 ///
@@ -31,12 +32,11 @@ nonisolated final class StubURLProtocol: URLProtocol {
     "arrival":"2026-09-05T18:00:00Z","price":349}
     """
 
-    private static let lock = NSLock()
-    nonisolated(unsafe) private static var capturedByScenario: [String: [CapturedRequest]] = [:]
+    private static let capturedByScenario = Mutex<[String: [CapturedRequest]]>([:])
 
     /// Requests the stub saw for a scenario, in the order they arrived.
     static func requests(for scenario: String) -> [CapturedRequest] {
-        lock.withLock { capturedByScenario[scenario] ?? [] }
+        capturedByScenario.withLock { $0[scenario] ?? [] }
     }
 
     override static func canInit(with request: URLRequest) -> Bool { true }
@@ -71,7 +71,7 @@ nonisolated final class StubURLProtocol: URLProtocol {
             headers: request.allHTTPHeaderFields ?? [:],
             body: body(of: request)
         )
-        lock.withLock { capturedByScenario[scenario, default: []].append(entry) }
+        capturedByScenario.withLock { $0[scenario, default: []].append(entry) }
     }
 
     private static func responseBody(for scenario: String) -> String {

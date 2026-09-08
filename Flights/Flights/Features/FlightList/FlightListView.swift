@@ -4,6 +4,7 @@ import SwiftUI
 struct FlightListView: View {
     @State private var viewModel: FlightListViewModel
     @State private var isShowingAddFlight = false
+    @State private var retryTask: Task<Void, Never>?
     @Environment(FlightsRouter.self) private var router
 
     init(dependencies: AppDependencies) {
@@ -34,6 +35,7 @@ struct FlightListView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task { await viewModel.loadIfNeeded() }
         .refreshable { await viewModel.load() }
+        .onDisappear { retryTask?.cancel() }
         .sheet(isPresented: $isShowingAddFlight) { AddFlightPlaceholder() }
     }
 
@@ -58,7 +60,11 @@ struct FlightListView: View {
             LoadingStateView()
         case .failed(let error):
             ErrorStateView(error: error) {
-                Task { await viewModel.load() }
+                guard retryTask == nil else { return }
+                retryTask = Task {
+                    defer { retryTask = nil }
+                    await viewModel.load()
+                }
             }
         case .loaded:
             if viewModel.isShowingEmptyState {

@@ -147,7 +147,7 @@ checkmark on the way back — driven by shared state, not by passing a callback 
 
 ## Testing
 
-72 tests in 15 suites, written with Swift Testing (79 executions including parameterized cases).
+77 tests in 17 suites, written with Swift Testing (87 executions including parameterized cases).
 They cover the logic that would actually break:
 
 - `FlightClassifierTests` — segment split, the Flight Today rule, the departure boundary, per-zone
@@ -169,6 +169,15 @@ They cover the logic that would actually break:
   and cancelled sign-in preserves the form without authenticating.
 - `CompletionPropagationTests` — toggling details updates an already-loaded list and persisted
   completion state without another fetch.
+- `SignInLifecycleTests` — late successes and failures after cancellation or session changes,
+  sign-out during authentication, and duplicate submissions.
+- `FlightDecodingCancellationTests` — cancelled record processing exits with cancellation.
+
+UI-facing observable state remains on `MainActor`. Session revisions protect against stale responses
+even when two sessions use the same token. Login and retry tasks retain cancellation handles that
+their views cancel on disappearance; initial loading uses SwiftUI's `.task`. The live API methods
+use `@concurrent` to keep response decoding off the caller's actor under Swift 6.2's isolation rules.
+In-memory stores use `Synchronization.Mutex`, avoiding unchecked Sendable conformance.
 
 Formatted output is compared through a helper that normalises Unicode spaces: iOS separates the
 minutes from AM/PM with U+202F, which is invisible on screen but not in a string comparison.

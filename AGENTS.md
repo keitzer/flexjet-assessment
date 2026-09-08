@@ -27,6 +27,17 @@
   business logic should remain usable without a SwiftUI environment.
 - Respect Swift 6 actor isolation and Sendable requirements. Do not silence concurrency diagnostics
   with unchecked annotations merely to make a build pass.
+- `@MainActor` serializes access but does not make an async operation atomic. Validate session
+  revision and request identity after suspension before applying results or errors.
+- SwiftUI `.task` manages lifecycle cancellation; plain `Task {}` does not. Store handles for
+  button-launched tasks and cancel them when the owning view disappears. Cancellation is cooperative:
+  check before publishing results and in processing loops, and preserve `CancellationError`.
+- Keep view initializers cheap and free of network calls. Initializing an injected observable model
+  in `@State` is acceptable here because its initializer only assigns dependencies and initial state.
+- Under the project's Swift 6.2 settings, `nonisolated async` can inherit the caller's actor.
+  Use `@concurrent` deliberately for work that must leave that actor; neither `Task {}` nor an
+  arbitrary actor guarantees a dedicated background thread. `@preconcurrency` is a migration escape
+  hatch, not evidence that a dependency is thread-safe.
 
 ## Behavior to preserve
 
@@ -70,16 +81,17 @@ README.md; this is the short form.
   domain models, formatting and networking are explicitly `nonisolated` and only UI-facing state
   (`SessionStore`, `FlightCompletionStore`, view models) is main-actor isolated. Mark new value
   types crossing actors `nonisolated`; do not reach for `@unchecked Sendable` to silence this.
-  Existing `@unchecked` conformances are `UserDefaultsCompletionStorage`, because `UserDefaults`
-  predates `Sendable` but is documented thread-safe, and the two in-memory storage classes, whose
-  mutable state is protected by `NSLock`.
+  The remaining production `@unchecked` conformance is `UserDefaultsCompletionStorage`, because
+  `UserDefaults` predates `Sendable` but is documented thread-safe. In-memory storage and the
+  test request recorder use `Synchronization.Mutex` with compiler-checked Sendable conformance.
 - Invalid flight records are dropped, not surfaced as an error: `Flight.init?(dto:)` is the single
   domain validation point. `FlightsResponseDTO` isolates per-record decoding failures, including
   wrong field types. Malformed top-level JSON still fails the request.
 - Completion is device-local (`UserDefaults`) because the service has no write endpoint. The auth
   token is a credential and lives in the Keychain instead.
 - A 401 on an authenticated route ends the session, returning the user to login.
-- Only the latest flight request for the current token may publish results or expire the session.
+- Only the latest flight request for the current session revision may publish results or expire
+  the session, even if a later login receives an identical token.
   Cancellation is not a user-facing service failure; preserve loaded data or allow an initial retry.
 - No third-party app dependencies. Two endpoints do not justify a networking library.
   Fastlane is a developer tool managed separately through Bundler and Gemfile.lock.

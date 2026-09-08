@@ -1,4 +1,5 @@
 import Foundation
+import Synchronization
 
 /// Persists the set of flight IDs the user has marked complete.
 ///
@@ -32,19 +33,18 @@ nonisolated struct UserDefaultsCompletionStorage: CompletionPersisting, @uncheck
 }
 
 /// Non-persistent storage for previews and tests.
-nonisolated final class InMemoryCompletionStorage: CompletionPersisting, @unchecked Sendable {
-    private let lock = NSLock()
-    private var ids: Set<String>
+nonisolated final class InMemoryCompletionStorage: CompletionPersisting {
+    private let ids: Mutex<Set<String>>
 
     init(ids: Set<String> = []) {
-        self.ids = ids
+        self.ids = Mutex(ids)
     }
 
     func loadCompletedIDs() -> Set<String> {
-        lock.withLock { ids }
+        ids.withLock { $0 }
     }
 
     func save(_ ids: Set<String>) {
-        lock.withLock { self.ids = ids }
+        self.ids.withLock { $0 = ids }
     }
 }
