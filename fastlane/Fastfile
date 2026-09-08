@@ -1,0 +1,28 @@
+default_platform(:ios)
+opt_out_usage
+skip_docs
+
+platform :ios do
+  desc "Run unit tests (optional device and only parameters)"
+  lane :test do |options|
+    results = run_tests(
+      project: "Flights/Flights.xcodeproj",
+      scheme: "Flights",
+      configuration: "Debug",
+      # Let Xcode select the installed runtime instead of matching the SDK's exact version.
+      destination: "platform=iOS Simulator,name=#{options[:device] || 'iPhone 17 Pro'},OS=latest",
+      skip_detect_devices: true,
+      only_testing: options[:only] ? [options[:only]] : ["FlightsTests"],
+      derived_data_path: "build/DerivedData",
+      output_directory: "fastlane/test_output",
+      buildlog_path: "fastlane/test_output/logs",
+      result_bundle: true,
+      # Parse Swift Testing results from xcresult; xcpretty emits an empty JUnit report for them.
+      xcodebuild_formatter: "",
+      suppress_xcode_output: true,
+      output_types: "junit",
+      fail_build: true
+    )
+    UI.user_error!("No tests ran. Check the only: filter and the Flights scheme.") if results[:number_of_tests].to_i.zero?
+  end
+end

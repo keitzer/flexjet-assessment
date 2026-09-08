@@ -81,7 +81,10 @@ README.md; this is the short form.
 - A 401 on an authenticated route ends the session, returning the user to login.
 - Only the latest flight request for the current token may publish results or expire the session.
   Cancellation is not a user-facing service failure; preserve loaded data or allow an initial retry.
-- No third-party dependencies. Two endpoints do not justify a networking library.
+- No third-party app dependencies. Two endpoints do not justify a networking library.
+  Fastlane is a developer tool managed separately through Bundler and Gemfile.lock.
+  `.ruby-version` records the tested local Ruby; `Gemfile.lock` records the Bundler version under
+  `BUNDLED WITH`. Update those deliberately alongside any toolchain upgrade and verify the test lane.
 - Guard preview blocks that use debug-only mocks or helpers with `#if DEBUG` too; `#Preview`
   references are still type-checked in Release. Verify a Release build after preview changes.
 - Placeholders are honest: Favorites, Contracts and the `+` button say they are unbuilt rather
@@ -116,6 +119,10 @@ Root: `https://v0-simple-authentication-api.vercel.app` — sole user `john` / `
   `MockFlightsAPIClient.empty`, not `.empty`, where the parameter is `any FlightsAPIClient`.
 - iOS 26 places `.toolbar` items in a floating capsule above a large title. The Flights header is
   drawn in content instead, so the title and `+` share one row as the design shows.
+- xcpretty cannot populate JUnit reports for Swift Testing. The test lane sets
+  `xcodebuild_formatter: ""` so `run_tests` uses its built-in trainer conversion of `.xcresult`
+  instead. Keep `fail_build: true`, fail when no tests run, and verify passing and failing paths
+  after touching the lane. Avoid overlapping runs in the same build/report directories.
 - Never assert with `#expect` inside `URLProtocol.startLoading()` or any other callback off the
   test's task context. Swift Testing attributes those to `Test «unknown»` and `xcodebuild test`
   still exits **0**, so the check cannot fail CI. `StubURLProtocol` captures each request instead
@@ -129,6 +136,8 @@ Root: `https://v0-simple-authentication-api.vercel.app` — sole user `john` / `
 
 ```sh
 swiftlint                                   # from the repository root
+bundle exec fastlane test                    # all unit tests; bundle install on first setup
+bundle exec fastlane test only:"FlightsTests/FlightClassifierTests"
 xcodebuild -project Flights/Flights.xcodeproj -scheme Flights \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
 ```

@@ -3,7 +3,7 @@
 An iOS take-home for Flexjet: sign in against a flights service, browse Upcoming and Past
 flights, and mark past flights complete.
 
-SwiftUI, Swift 6 with strict concurrency, `@Observable`, no third-party dependencies.
+SwiftUI, Swift 6 with strict concurrency, `@Observable`, no third-party app dependencies.
 
 ## Running
 
@@ -11,7 +11,47 @@ Open `Flights/Flights.xcodeproj` and run the **Flights** scheme (iOS 26 simulato
 
 Sign in with the service's sole user: **`john` / `12345`**.
 
-Tests: `Cmd-U`, or
+Tests: `Cmd-U`, or use the Fastlane test lane from the repository root. The toolchain is recorded in
+`.ruby-version` (Ruby 3.3.12) and `Gemfile.lock` (Bundler 2.6.9 and Fastlane 2.239.0).
+The Gemfile requires Ruby 3.3.x; `.ruby-version` selects the exact tested patch version with rbenv.
+
+One-time setup with rbenv:
+
+```sh
+rbenv install -s
+gem install bundler -v 2.6.9
+bundle config set --local path vendor/bundle
+bundle install
+```
+
+Run all unit tests:
+
+```sh
+bundle exec fastlane test
+```
+
+The lane defaults to the iPhone 17 Pro simulator and Debug configuration. It builds the app,
+runs `FlightsTests`, and exits unsuccessfully on build, lint, or test failures, or if no tests
+match the filter. SwiftLint runs
+through the existing Xcode build phase. No Apple account setup is needed for this lane.
+
+Optional simulator and test filters:
+
+```sh
+bundle exec fastlane test device:"iPhone 17"
+bundle exec fastlane test only:"FlightsTests/FlightClassifierTests"
+bundle exec fastlane test only:"FlightsTests/FlightClassifierTests/badgeForLaterToday()"
+```
+
+List available simulators with `xcrun simctl list devices available`. Results, including JUnit
+and an Xcode `.xcresult` bundle, are saved under `fastlane/test_output/`; build products go in
+`build/DerivedData/`. Both locations are ignored by Git. Commit `Gemfile` and `Gemfile.lock`
+so everyone installs the same Fastlane dependencies. The Gemfile currently permits Fastlane 2.239.x
+patch updates through `bundle update fastlane`; change its constraint for a later minor release.
+
+For a single Swift Testing function, include its parentheses in the quoted identifier as above.
+
+The underlying Xcode command remains available:
 
 ```sh
 xcodebuild -project Flights/Flights.xcodeproj -scheme Flights \

@@ -25,3 +25,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/
 fastlane/test_output/
+
+# Local Ruby dependencies and Bundler settings
+.bundle/
+vendor/bundle/
