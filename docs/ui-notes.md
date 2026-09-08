@@ -23,6 +23,13 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 
 ## Enhancements
 
+- Flight details show the same Flight Today badge below the title, using the shared classifier's
+  local-day and not-yet-departed rules. Upcoming details still hide the Complete action.
+
+- Flight Today rows have a subtle card shadow and a badge below the summary, aligned with the
+  date chip. Both use the same `showsTodayBadge` condition. Shadow values live in `Theme.Shadow`
+  and approximate the supplied screenshot; exact Figma effect values were not provided.
+
 - Initial flight loading uses shimmering card placeholders. Reduce Motion shows static placeholders;
   animation stops when the scene is inactive. VoiceOver exposes a single "Loading flights" element.
   Pull-to-refresh retains the loaded flights instead of replacing them with placeholders.

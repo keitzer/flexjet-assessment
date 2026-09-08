@@ -8,6 +8,19 @@ struct FlightRow: View {
     let model: FlightRowModel
 
     var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.large) {
+            summary
+            if model.showsTodayBadge {
+                FlightTodayBadge()
+            }
+        }
+        .padding(Theme.Spacing.large)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .flightCard(elevated: model.showsTodayBadge)
+        .contentShape(.rect)
+    }
+
+    private var summary: some View {
         HStack(alignment: .top, spacing: Theme.Spacing.medium) {
             FlightDateChip(month: model.month, day: model.day, style: model.isPast ? .past : .upcoming)
             VStack(alignment: .leading, spacing: Theme.Spacing.xSmall) {
@@ -20,20 +33,12 @@ struct FlightRow: View {
                 Text(model.subtitle)
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Palette.secondaryText)
-                if model.showsTodayBadge {
-                    FlightTodayBadge()
-                        .padding(.top, Theme.Spacing.xSmall)
-                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             if model.showsCompletion {
                 CompletionIndicator(isComplete: model.isComplete)
             }
         }
-        .padding(Theme.Spacing.large)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .flightCard()
-        .contentShape(.rect)
     }
 }
 

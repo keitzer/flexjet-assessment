@@ -43,6 +43,13 @@ enum Theme {
         static let pill: CGFloat = 100
     }
 
+    /// Subtle Today-card elevation, approximated from the supplied design screenshot.
+    enum Shadow {
+        static let todayColor = Color.black.opacity(0.12)
+        static let todayRadius: CGFloat = 6
+        static let todayOffset: CGFloat = 3
+    }
+
     /// Shared layout dimensions from the design and app-specific layout choices.
     enum Size {
         /// The date chip is a 48-point square with an 18-point month band.

@@ -19,6 +19,9 @@ struct FlightDetailView: View {
                 Text(viewModel.model.title)
                     .font(Theme.Typography.screenTitle)
                     .accessibilityAddTraits(.isHeader)
+                if viewModel.showsTodayBadge {
+                    FlightTodayBadge()
+                }
                 endpoints
                 fields
                 if viewModel.canToggleCompletion {
@@ -68,6 +71,10 @@ private struct FlightDetailPreview: View {
 #if DEBUG
 #Preview("Detail") {
     FlightDetailPreview(flight: .samplePast)
+}
+
+#Preview("Flight Today") {
+    FlightDetailPreview(flight: .sampleToday)
 }
 
 #Preview("Completed") {

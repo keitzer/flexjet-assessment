@@ -12,17 +12,20 @@ final class FlightDetailViewModel {
 
     private let completion: FlightCompletionStore
     private let presenter: FlightDetailPresenter
+    private let classifier: FlightClassifier
     private let now: @Sendable () -> Date
 
     init(
         flight: Flight,
         completion: FlightCompletionStore,
         presenter: FlightDetailPresenter = FlightDetailPresenter(),
+        classifier: FlightClassifier = FlightClassifier(),
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.flight = flight
         self.completion = completion
         self.presenter = presenter
+        self.classifier = classifier
         self.now = now
     }
 
@@ -35,7 +38,11 @@ final class FlightDetailViewModel {
     }
 
     var canToggleCompletion: Bool {
-        FlightClassifier().hasDeparted(flight, now: now())
+        classifier.hasDeparted(flight, now: now())
+    }
+
+    var showsTodayBadge: Bool {
+        classifier.showsTodayBadge(for: flight, now: now())
     }
 
     /// Toggles rather than only completing, so the action is reversible if tapped by mistake.
