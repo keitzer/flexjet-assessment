@@ -92,8 +92,8 @@ struct FlightListView: View {
             .padding(.horizontal, Theme.Spacing.large)
             .padding(.bottom, Theme.Spacing.large)
         }
-        // Re-animate the list when the user switches segments.
-        .animation(.snappy(duration: 0.25), value: viewModel.selectedCategory)
+        // Each category starts at the top with fresh lazy-layout and scroll state.
+        .id(viewModel.selectedCategory)
     }
 }
 

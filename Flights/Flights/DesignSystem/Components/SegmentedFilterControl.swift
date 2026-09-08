@@ -21,15 +21,14 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
         .padding(Theme.Spacing.xSmall)
         .background(Theme.Palette.segmentTrack, in: .capsule)
         .accessibilityElement(children: .contain)
-        .sensoryFeedback(.selection, trigger: selection)
+        .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: selection)
+        .animation(.snappy(duration: 0.28), value: selection)
     }
 
     private func segment(for item: Item) -> some View {
         let isSelected = item == selection
         return Button {
-            withAnimation(.snappy(duration: 0.28)) {
-                selection = item
-            }
+            selection = item
         } label: {
             Text(title(item))
                 .font(.subheadline.weight(isSelected ? .semibold : .regular))

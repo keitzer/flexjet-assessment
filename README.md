@@ -144,6 +144,8 @@ persists a set of flight IDs to `UserDefaults` (a non-sensitive preference, unli
 which lives in the Keychain). The store is shared through the environment and the list's rows are
 computed rather than stored, so marking a flight complete on the detail screen updates the row's
 checkmark on the way back — driven by shared state, not by passing a callback up the stack.
+Completion and undo are available only after departure, using the same strict `departure < now`
+boundary as the Past list. Upcoming details hide the button, and the view model also guards the action.
 
 ## Testing
 
@@ -193,9 +195,11 @@ minutes from AM/PM with U+202F, which is invisible on screen but not in a string
   selectable, and completion conveyed by fill and label rather than colour alone.
 - Small motion: the segment pill slides via `matchedGeometryEffect`, the completion mark uses a
   symbol replace transition, and completing a flight fires haptic feedback.
-- Haptics: light taps for sign-in, add flight, flight rows, sign-out, retry, and sheet dismissal;
-  selection feedback when filters or tabs change; success feedback for completion and a light
-  impact when undoing it. Feedback stays in the UI layer. Check the tactile feel on a physical
+  Switching Upcoming/Past starts the selected list at the top; the pill animates independently
+  so replacing the rows does not animate their layout or reuse the other category's scroll offset.
+- Haptics: heavy impacts at full intensity for sign-in, add flight, flight rows, sign-out, retry,
+  sheet dismissal, filter and tab changes, and completing or undoing completion.
+  Feedback stays in the UI layer. Check the tactile feel on a physical
   iPhone; simulator tests cannot verify it.
 - Strict quality gates: Swift 6, warnings-as-errors, and SwiftLint in strict mode (200-line files,
   40-line functions, no force unwraps) failing the build on any violation.

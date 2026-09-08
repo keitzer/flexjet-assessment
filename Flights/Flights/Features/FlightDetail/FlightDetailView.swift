@@ -21,10 +21,12 @@ struct FlightDetailView: View {
                     .accessibilityAddTraits(.isHeader)
                 endpoints
                 fields
-                CompleteButton(isComplete: viewModel.isComplete) {
-                    viewModel.toggleCompletion()
+                if viewModel.canToggleCompletion {
+                    CompleteButton(isComplete: viewModel.isComplete) {
+                        viewModel.toggleCompletion()
+                    }
+                    .padding(.top, Theme.Spacing.small)
                 }
-                .padding(.top, Theme.Spacing.small)
             }
             .padding(Theme.Spacing.large)
         }

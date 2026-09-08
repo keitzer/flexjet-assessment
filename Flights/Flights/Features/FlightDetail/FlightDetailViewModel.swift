@@ -34,8 +34,13 @@ final class FlightDetailViewModel {
         completion.isComplete(flight.id)
     }
 
+    var canToggleCompletion: Bool {
+        FlightClassifier().hasDeparted(flight, now: now())
+    }
+
     /// Toggles rather than only completing, so the action is reversible if tapped by mistake.
     func toggleCompletion() {
+        guard canToggleCompletion else { return }
         completion.toggle(flight.id)
     }
 }

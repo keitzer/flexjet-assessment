@@ -36,7 +36,7 @@ struct MainTabView: View {
             }
         }
         .tint(Theme.Palette.brand)
-        .sensoryFeedback(.selection, trigger: selectedTab)
+        .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: selectedTab)
     }
 }
 

@@ -1,10 +1,10 @@
 import UIKit
 
 /// Immediate feedback for accepted button actions, including actions that remove their view.
-/// Selection and completion feedback use SwiftUI's state-driven sensoryFeedback modifiers.
+/// Filters, tabs and completion use matching state-driven SwiftUI impact feedback.
 @MainActor
 enum Haptics {
     static func tap() {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.65)
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred(intensity: 1)
     }
 }

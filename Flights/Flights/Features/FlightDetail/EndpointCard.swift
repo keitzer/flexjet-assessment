@@ -18,7 +18,7 @@ struct EndpointCard: View {
                 .foregroundStyle(Theme.Palette.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Theme.Spacing.medium)
+        .padding(Theme.Spacing.large)
         .flightCard()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(caption): \(location)")
