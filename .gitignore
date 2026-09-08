@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+._*
+
+# Xcode build output and local user settings
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# App archives and debug symbols
+*.ipa
+*.xcarchive
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager build output
+.build/
+.swiftpm/
+
+# fastlane generated output
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
