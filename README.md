@@ -50,3 +50,34 @@ boundaries. There is no UI test target, and Proxima Nova assets are pending.
 
 
 [Full documentation and decision index](docs/README.md)
+
+## Screenshots
+
+Captured on the iPhone 17 Pro simulator. Select a screenshot to view it at full size.
+
+<table>
+  <tr>
+    <th align="center">Sign in</th>
+    <th align="center">Keyboard support</th>
+    <th align="center">Upcoming flights</th>
+    <th align="center">Past flights</th>
+  </tr>
+  <tr>
+    <td><a href="screenshots/login.png"><img src="screenshots/login.png" alt="Sign in" width="200"></a></td>
+    <td><a href="screenshots/login-keyboard.png"><img src="screenshots/login-keyboard.png" alt="Keyboard support" width="200"></a></td>
+    <td><a href="screenshots/upcoming-flights.png"><img src="screenshots/upcoming-flights.png" alt="Upcoming flights" width="200"></a></td>
+    <td><a href="screenshots/past-flights.png"><img src="screenshots/past-flights.png" alt="Past flights" width="200"></a></td>
+  </tr>
+  <tr>
+    <th align="center">Completed flight</th>
+    <th align="center">Favorite route</th>
+    <th align="center">Profile settings</th>
+    <th align="center">Dark appearance</th>
+  </tr>
+  <tr>
+    <td><a href="screenshots/completed-flight.png"><img src="screenshots/completed-flight.png" alt="Completed flight" width="200"></a></td>
+    <td><a href="screenshots/favorite-route.png"><img src="screenshots/favorite-route.png" alt="Favorite route" width="200"></a></td>
+    <td><a href="screenshots/profile-settings.png"><img src="screenshots/profile-settings.png" alt="Profile settings" width="200"></a></td>
+    <td><a href="screenshots/flight-details-dark.png"><img src="screenshots/flight-details-dark.png" alt="Dark appearance" width="200"></a></td>
+  </tr>
+</table>
