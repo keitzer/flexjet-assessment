@@ -152,11 +152,9 @@ on a simulator keyboard, and it compiles out of Release.
 
 | Area | Time |
 | --- | --- |
-| Login screen | X hours |
-| Flights screen | X hours |
-| Flight details | X hours |
+| First Pass | 0.5 Hours |
 | Nice-to-haves (tests, previews, states, a11y) | X hours |
-| Additional (project setup, lint config, README) | X hours |
+| Additional (project setup, lint config, README) | 0.5 hours |
 
 ## Code quality
 
