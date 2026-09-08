@@ -45,9 +45,8 @@ boundaries. There is no UI test target, and Proxima Nova assets are pending.
 | Area | Recorded time |
 | --- | --- |
 | First pass (Login + Flights; not tracked separately) | 0.5 hours |
-| Nice-to-haves (tests, previews, states, accessibility) | 2+ hours |
+| Nice-to-haves (tests, previews, states, accessibility) | ~2 hours |
 | Additional (project setup, lint config, README) | 1.5 hours |
 
-These are the previously recorded figures; subsequent iterations have not been added.
 
 [Full documentation and decision index](docs/README.md)
