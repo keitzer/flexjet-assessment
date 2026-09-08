@@ -18,11 +18,7 @@ struct MainTabView: View {
                 FlightsTab(dependencies: dependencies)
             }
             Tab("Favorites", systemImage: "heart", value: AppTab.favorites) {
-                PlaceholderScreen(
-                    title: "Favorites",
-                    systemImage: "heart",
-                    message: "Flights you save will appear here."
-                )
+                FavoritesTab(dependencies: dependencies)
             }
             Tab("Contracts", systemImage: "signature", value: AppTab.contracts) {
                 PlaceholderScreen(

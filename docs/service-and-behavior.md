@@ -58,3 +58,12 @@ Completion and undo are available only after departure, using the same strict `d
 boundary as the Past list. Upcoming details hide the button, and the view model also guards the action.
 
 See [ADR-0004](adr/0004-local-persistence.md) for persistence decisions.
+
+## Favorite routes
+
+Favorites use directional origin/destination IATA pairs and persist in UserDefaults. Only flight
+and route details expose save/remove controls. The Favorites tab lists saved routes, including
+routes with no matching flights in the latest response. Route details filter `GET /api/flights`
+locally, preferring the shared session cache; explicit refresh/retry fetches fresh data. Normal
+Upcoming/Past rules, date formatting and completion state are reused. No write
+endpoint is assumed. See [ADR-0006](adr/0006-favorite-routes.md).

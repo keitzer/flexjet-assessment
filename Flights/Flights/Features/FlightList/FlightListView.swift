@@ -4,15 +4,14 @@ import SwiftUI
 struct FlightListView: View {
     @State private var viewModel: FlightListViewModel
     @State private var isShowingAddFlight = false
-    @State private var retryTask: Task<Void, Never>?
-    @Environment(FlightsRouter.self) private var router
 
     init(dependencies: AppDependencies) {
         _viewModel = State(
             wrappedValue: FlightListViewModel(
                 apiClient: dependencies.apiClient,
                 session: dependencies.session,
-                completion: dependencies.completion
+                completion: dependencies.completion,
+                cache: dependencies.flightsCache
             )
         )
     }
@@ -27,7 +26,7 @@ struct FlightListView: View {
                 selection: $viewModel.selectedCategory
             )
             .padding(.horizontal, Theme.Spacing.large)
-            content
+            FlightResultsView(viewModel: viewModel)
         }
         .background(Theme.Palette.screen)
         // The design puts the title and the "+" on one row, so the header is drawn in content
@@ -36,7 +35,6 @@ struct FlightListView: View {
         .task { await viewModel.loadIfNeeded() }
         .refreshFlightTime(departures: viewModel.flights.map(\.departure), refresh: viewModel.refreshTime)
         .refreshable { await viewModel.load() }
-        .onDisappear { retryTask?.cancel() }
         .sheet(isPresented: $isShowingAddFlight) { AddFlightPlaceholder() }
     }
 
@@ -52,49 +50,6 @@ struct FlightListView: View {
         }
         .padding(.horizontal, Theme.Spacing.large)
         .padding(.top, Theme.Spacing.large)
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch viewModel.state {
-        case .idle, .loading:
-            FlightListSkeleton()
-        case .failed(let error):
-            ErrorStateView(error: error) {
-                guard retryTask == nil else { return }
-                Haptics.tap()
-                retryTask = Task {
-                    defer { retryTask = nil }
-                    await viewModel.load()
-                }
-            }
-        case .loaded:
-            if viewModel.isShowingEmptyState {
-                EmptyFlightsStateView(category: viewModel.selectedCategory)
-            } else {
-                list
-            }
-        }
-    }
-
-    private var list: some View {
-        ScrollView {
-            LazyVStack(spacing: Theme.Spacing.medium) {
-                ForEach(viewModel.items) { item in
-                    Button {
-                        Haptics.tap()
-                        router.showDetail(item.flight)
-                    } label: {
-                        FlightRow(model: item.model)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, Theme.Spacing.large)
-            .padding(.bottom, Theme.Spacing.large)
-        }
-        // Each category starts at the top with fresh lazy-layout and scroll state.
-        .id(viewModel.selectedCategory)
     }
 }
 

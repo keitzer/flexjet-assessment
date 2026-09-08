@@ -3,8 +3,10 @@ import SwiftUI
 /// The flight detail screen.
 struct FlightDetailView: View {
     @State private var viewModel: FlightDetailViewModel
+    private let favorites: FavoriteRoutesStore
 
     init(flight: Flight, dependencies: AppDependencies) {
+        favorites = dependencies.favorites
         _viewModel = State(
             wrappedValue: FlightDetailViewModel(
                 flight: flight,
@@ -35,6 +37,11 @@ struct FlightDetailView: View {
         }
         .background(Theme.Palette.screen)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                FavoriteRouteButton(route: FavoriteRoute(flight: viewModel.flight), store: favorites)
+            }
+        }
         .refreshFlightTime(departures: [viewModel.flight.departure], refresh: viewModel.refreshTime)
     }
 

@@ -23,6 +23,12 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 
 ## Enhancements
 
+- Favorites saves directional routes, not individual flights. Favorite/unfavorite actions appear
+  only as navigation-bar hearts on flight and route details. Saved route cards open route details with matching Upcoming/Past
+  flights, using the current session's shared cache when available; tapping a flight opens the usual details.
+  Favorites persist locally and update across
+  tabs immediately. See [favorite route decision](adr/0006-favorite-routes.md).
+
 - Login uses a full-screen maroon gradient with a subtle globe motif and an elevated form card.
   Fields have leading symbols and focused borders. Sign In stays in a bottom safe-area inset above
   the keyboard, and focusing either field scrolls the form into view. Text uses shared Dynamic Type
@@ -61,7 +67,7 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 
 ## Known gaps
 
-- Favorites and Contracts are honest placeholders; the brief does not define them. Profile provides sign-out, haptics settings, and appearance selection.
+- Contracts remains a placeholder; the brief does not define it. Profile provides sign-out, haptics settings, and appearance selection.
 - The `+` button opens a placeholder — no add-flight flow is specified.
 - No UI test target. The view models are covered, but the navigation flow itself is not
   exercised end-to-end.

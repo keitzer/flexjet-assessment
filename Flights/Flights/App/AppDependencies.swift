@@ -9,6 +9,8 @@ struct AppDependencies {
     let apiClient: FlightsAPIClient
     let session: SessionStore
     let completion: FlightCompletionStore
+    let favorites: FavoriteRoutesStore
+    let flightsCache: FlightsCache
 
     /// The configuration the shipping app runs with.
     ///
@@ -20,7 +22,9 @@ struct AppDependencies {
         Self(
             apiClient: LiveFlightsAPIClient(),
             session: SessionStore(storage: launchStorage()),
-            completion: FlightCompletionStore()
+            completion: FlightCompletionStore(),
+            favorites: FavoriteRoutesStore(storage: UserDefaultsFavoriteRoutesStorage()),
+            flightsCache: FlightsCache()
         )
     }
 
@@ -37,12 +41,15 @@ struct AppDependencies {
     /// A signed-in container backed by stub data, for previews.
     static func preview(
         apiClient: FlightsAPIClient = MockFlightsAPIClient(),
-        completedIDs: Set<String> = []
+        completedIDs: Set<String> = [],
+        favoriteRoutes: [FavoriteRoute] = []
     ) -> Self {
         Self(
             apiClient: apiClient,
             session: SessionStore(storage: InMemoryTokenStorage(token: "preview-token")),
-            completion: FlightCompletionStore(storage: InMemoryCompletionStorage(ids: completedIDs))
+            completion: FlightCompletionStore(storage: InMemoryCompletionStorage(ids: completedIDs)),
+            favorites: FavoriteRoutesStore(storage: InMemoryFavoriteRoutesStorage(routes: favoriteRoutes)),
+            flightsCache: FlightsCache()
         )
     }
     #endif

@@ -6,6 +6,7 @@ import Observation
 /// A value type rather than a view, so navigation state stays inspectable and testable.
 nonisolated enum FlightRoute: Hashable, Sendable {
     case detail(Flight)
+    case favoriteRoute(FavoriteRoute)
 }
 
 /// Owns the Flights tab's navigation stack.
@@ -21,6 +22,10 @@ final class FlightsRouter {
 
     func showDetail(_ flight: Flight) {
         path.append(.detail(flight))
+    }
+
+    func showRoute(_ route: FavoriteRoute) {
+        path.append(.favoriteRoute(route))
     }
 
     func pop() {

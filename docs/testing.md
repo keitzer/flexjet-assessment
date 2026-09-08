@@ -43,15 +43,15 @@ The gate applies when running `coverage`; merely running `test` or Cmd-U does no
 
 ## Measured baseline (2026-09-08)
 
-The full suite passed **138 executions** (including parameterized cases), with **596/602 covered
-business-logic lines (99.00%)**:
+The full suite passed **155 executions** (including parameterized cases), with **677/683 covered
+business-logic lines (99.12%)**:
 
 | Layer | Covered / executable | Line coverage |
 | --- | --- | --- |
-| Domain, DTOs and formatting | 158 / 159 | 99.37% |
-| Networking, session and persistence | 213 / 217 | 98.16% |
-| Feature view models and presenters | 214 / 215 | 99.53% |
-| Navigation | 11 / 11 | 100% |
+| Domain, DTOs and formatting | 174 / 175 | 99.43% |
+| Networking, session and persistence | 263 / 267 | 98.50% |
+| Feature view models and presenters | 226 / 227 | 99.56% |
+| Navigation | 14 / 14 | 100% |
 
 Re-run the lane for current results. These numbers include infrastructure fallback code and do not
 exclude uncovered production methods within the measured layers.
@@ -61,9 +61,9 @@ exclude uncovered production methods within the measured layers.
 `Flights/FlightsTests/` mirrors the production folders:
 
 - `App/Navigation/`: typed navigation state.
-- `Core/Networking/`, `Core/Session/`, `Core/Completion/`: transport, token and completion storage.
+- `Core/Networking/`, `Core/Session/`, `Core/Completion/`, `Core/Favorites/`, `Core/Flights/`: transport, persistence and cache.
 - `Models/Domain/`, `Models/DTO/`, `Models/Formatting/`: rules, mapping and presentation values.
-- `Features/Login/`, `Features/FlightList/`, `Features/FlightDetail/`: view models and feature behaviour.
+- `Features/Login/`, `Features/FlightList/`, `Features/FlightDetail/`, `Features/Favorites/`: feature behaviour.
 - `DesignSystem/`: preferences and background color-resolution regressions.
 - `Support/`: fixtures, controllable clocks, service doubles, and the URLProtocol request recorder.
 
@@ -95,6 +95,16 @@ There is no real-time scheduling guarantee: a busy app updates when its main act
 The system notification handling follows Apple's
 [significant time change documentation](https://developer.apple.com/documentation/uikit/uiapplication/significanttimechangenotification),
 which includes midnight, carrier clock updates and daylight-saving changes.
+
+## Favorite-route checks
+
+Tests cover directional IATA matching independent of flight IDs/labels, code normalization,
+reverse-route isolation, deduplication, deterministic ordering, local persistence, removal,
+corrupt-data recovery, filtered Upcoming/Past sorting, completion propagation, empty route results,
+and route-to-flight back-stack navigation. Cache tests count API calls across route visits,
+empty results and explicit refresh, reject cross-session reuse and stale writes, and verify
+classification uses the current clock. Favorites reuse the tested request lifecycle and
+calendar rules rather than implementing separate networking or date logic.
 
 ## Interpreting coverage
 

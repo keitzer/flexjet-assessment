@@ -24,6 +24,8 @@ final class FlightListViewModel {
     private let session: SessionStore
     private let completion: FlightCompletionStore
     private let classifier: FlightClassifier
+    private let routeFilter: RouteIdentity?
+    private let cache: FlightsCache
     private let builder: FlightRowModelBuilder
     /// Injected so tests can pin "now" and previews stay deterministic.
     private let now: @Sendable () -> Date
@@ -36,12 +38,16 @@ final class FlightListViewModel {
         completion: FlightCompletionStore,
         classifier: FlightClassifier = FlightClassifier(),
         builder: FlightRowModelBuilder = FlightRowModelBuilder(),
+        routeFilter: RouteIdentity? = nil,
+        cache: FlightsCache = FlightsCache(),
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.apiClient = apiClient
         self.session = session
         self.completion = completion
         self.classifier = classifier
+        self.routeFilter = routeFilter
+        self.cache = cache
         self.builder = builder
         self.now = now
         self.referenceDate = now()
@@ -54,7 +60,8 @@ final class FlightListViewModel {
 
     /// Flights for the selected segment, ordered for display.
     var visibleFlights: [Flight] {
-        classifier.flights(in: selectedCategory, from: flights, now: referenceDate)
+        let matching = flights.filter { routeFilter?.matches($0) ?? true }
+        return classifier.flights(in: selectedCategory, from: matching, now: referenceDate)
     }
 
     /// Rows for the selected segment, each paired with the flight it came from so the view can
@@ -83,13 +90,19 @@ final class FlightListViewModel {
     }
 
     func loadIfNeeded() async {
-        guard state == .idle else { return }
+        guard state == .idle, !Task.isCancelled else { return }
+        if session.isSignedIn, let cached = cache.flights(for: session.revision) {
+            refreshTime()
+            flights = cached
+            state = .loaded
+            return
+        }
         await load()
     }
 
     /// Fetches flights. Used for first load and for pull-to-refresh.
     func load() async {
-        let requestID = UUID()
+        let requestID = cache.beginRequest()
         latestRequestID = requestID
         guard let token = session.token else {
             state = .failed(.sessionExpired)
@@ -107,6 +120,7 @@ final class FlightListViewModel {
             guard latestRequestID == requestID, session.revision == sessionRevision else { return }
             refreshTime()
             flights = result
+            cache.save(result, for: sessionRevision, requestID: requestID)
             state = .loaded
         } catch {
             guard latestRequestID == requestID, session.revision == sessionRevision else { return }

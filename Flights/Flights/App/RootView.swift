@@ -33,7 +33,9 @@ struct RootView: View {
         dependencies: AppDependencies(
             apiClient: MockFlightsAPIClient(),
             session: SessionStore(storage: InMemoryTokenStorage()),
-            completion: FlightCompletionStore(storage: InMemoryCompletionStorage())
+            completion: FlightCompletionStore(storage: InMemoryCompletionStorage()),
+            favorites: FavoriteRoutesStore(storage: InMemoryFavoriteRoutesStorage()),
+            flightsCache: FlightsCache()
         )
     )
 }

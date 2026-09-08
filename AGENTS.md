@@ -103,8 +103,11 @@ docs/adr/ (indexed by docs/README.md); this is the short form.
   `BUNDLED WITH`. Update those deliberately alongside any toolchain upgrade and verify the test lane.
 - Guard preview blocks that use debug-only mocks or helpers with `#if DEBUG` too; `#Preview`
   references are still type-checked in Release. Verify a Release build after preview changes.
-- Placeholders are honest: Favorites, Contracts and the `+` button say they are unbuilt rather
-  than faking content. Profile is real to the extent that it owns sign-out.
+- Contracts and the `+` button remain honest placeholders. Favorites is implemented for directional
+  routes keyed by normalized origin/destination IATA codes. Only flight/route details expose the
+  favorite action as a navigation-bar heart; lists are navigation-only. Favorites persist locally
+  and share one store across tabs. Flight lists prefer the shared session-scoped in-memory cache;
+  explicit refresh/retry fetches from the API. See `docs/adr/0006-favorite-routes.md`.
 
 ## Service quirks
 

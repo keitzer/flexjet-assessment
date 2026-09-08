@@ -23,3 +23,4 @@ superseded record.
 | [0003](adr/0003-concurrency.md) | Actor isolation and request lifecycle protection | Accepted |
 | [0004](adr/0004-local-persistence.md) | Keychain sessions and device-local preferences | Accepted |
 | [0005](adr/0005-quality-tooling.md) | Strict linting and a reproducible CLI test lane | Accepted |
+| [0006](adr/0006-favorite-routes.md) | Directional route favorites, local persistence and filtered flights | Accepted |

@@ -19,4 +19,16 @@ struct FlightsRouterTests {
         router.popToRoot()
         #expect(router.path.isEmpty)
     }
+
+    @Test("Favorites navigation keeps route and flight details in the same back stack")
+    func favoriteNavigation() {
+        let router = FlightsRouter()
+        let flight = RouteFixtures.flight()
+        let route = FavoriteRoute(flight: flight)
+        router.showRoute(route)
+        router.showDetail(flight)
+        #expect(router.path == [.favoriteRoute(route), .detail(flight)])
+        router.pop()
+        #expect(router.path == [.favoriteRoute(route)])
+    }
 }

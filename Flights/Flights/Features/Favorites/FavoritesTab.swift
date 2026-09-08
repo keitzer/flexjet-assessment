@@ -1,18 +1,13 @@
 import SwiftUI
 
-/// The Flights tab: a navigation stack driven by `FlightsRouter`.
-///
-/// The router owns the path and this view owns the destination mapping, so a route value is the
-/// only thing a screen needs to navigate.
-struct FlightsTab: View {
+struct FavoritesTab: View {
     let dependencies: AppDependencies
-
     @State private var router = FlightsRouter()
 
     var body: some View {
         @Bindable var router = router
         NavigationStack(path: $router.path) {
-            FlightListView(dependencies: dependencies)
+            FavoritesListView(store: dependencies.favorites)
                 .navigationDestination(for: FlightRoute.self) { route in
                     FlightDestinationView(route: route, dependencies: dependencies)
                 }
@@ -22,7 +17,7 @@ struct FlightsTab: View {
 }
 
 #if DEBUG
-#Preview("Flights tab") {
-    FlightsTab(dependencies: .preview())
+#Preview("Favorites") {
+    FavoritesTab(dependencies: .preview(favoriteRoutes: [FavoriteRoute(flight: .samplePast)]))
 }
 #endif
