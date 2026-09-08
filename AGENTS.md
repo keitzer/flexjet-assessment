@@ -120,6 +120,11 @@ Root: `https://v0-simple-authentication-api.vercel.app` — sole user `john` / `
 
 ## Traps that cost real time
 
+- UIKit dynamic-color provider closures can execute on SwiftUI's background renderer. Create them
+  in a `nonisolated` context (see `Color.init(light:dark:)`), otherwise default MainActor isolation
+  can cause a dispatch queue assertion during animated color changes. `ThemeColorTests` resolves
+  the adaptive color off the main actor; keep this regression check.
+
 - `Date.AnchoredRelativeFormatStyle` describes the **anchor relative to the value**, which is the
   opposite of how it reads. Format `now` with the flight's date as the anchor to get "2w ago"
   rather than "in 2w". `FlightFormatterTests` pins both directions.

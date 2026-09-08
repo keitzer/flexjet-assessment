@@ -64,7 +64,9 @@ enum Theme {
 
 extension Color {
     /// Resolves against the presentation's appearance, including the user's in-app override.
-    init(light: UInt32, dark: UInt32) {
+    /// UIKit can resolve dynamic colors on SwiftUI's background renderer. Creating the provider
+    /// outside MainActor prevents its closure from inheriting a main-queue runtime assertion.
+    nonisolated init(light: UInt32, dark: UInt32) {
         self.init(uiColor: UIColor { traits in
             let hex = traits.userInterfaceStyle == .dark ? dark : light
             return UIColor(

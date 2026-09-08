@@ -60,6 +60,10 @@ the build. See [Code quality](#code-quality) below.
 
 ## Test coverage
 
+Rendering regressions include repeated completion-state transitions in a hosted SwiftUI view and
+adaptive color resolution on a background task. Dynamic UIColor providers are created outside
+MainActor because SwiftUI can evaluate them on its asynchronous renderer during animations.
+
 Tests use Swift Testing with deterministic fixtures and service doubles. The test lane reports
 the current execution count, including parameterized cases. Coverage includes:
 
