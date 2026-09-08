@@ -23,6 +23,11 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 
 ## Enhancements
 
+- Login uses a full-screen maroon gradient with a subtle globe motif and an elevated form card.
+  Fields have leading symbols and focused borders. Sign In stays in a bottom safe-area inset above
+  the keyboard, and focusing either field scrolls the form into view. Text uses shared Dynamic Type
+  roles; login-specific styling lives in `Theme.Login`. Light and dark previews cover the form.
+
 - Flight details show the same Flight Today badge below the title, using the shared classifier's
   local-day and not-yet-departed rules. Upcoming details still hide the Complete action.
 

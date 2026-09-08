@@ -22,41 +22,76 @@ struct LoginView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: Theme.Spacing.xLarge) {
-                header
-                fields
-                errorMessage
-                submitButton
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: Theme.Spacing.xLarge) {
+                        LoginHero()
+                            .onTapGesture { focusedField = nil }
+                        form
+                    }
+                    .padding(Theme.Spacing.xLarge)
+                    .frame(maxWidth: Theme.Size.loginFormMaxWidth)
+                    .frame(maxWidth: .infinity)
+                }
+                .background {
+                    Color.clear
+                        .contentShape(.rect)
+                        .onTapGesture { focusedField = nil }
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: focusedField) { _, field in
+                    guard field != nil else { return }
+                    withAnimation { proxy.scrollTo("loginFields", anchor: .top) }
+                }
+                .onChange(of: geometry.size.height) { _, _ in
+                    guard focusedField != nil else { return }
+                    withAnimation { proxy.scrollTo("loginFields", anchor: .top) }
+                }
             }
-            .padding(Theme.Spacing.xLarge)
-            .frame(maxWidth: Theme.Size.loginFormMaxWidth)
-            .frame(maxWidth: .infinity)
         }
-        .background(Theme.Palette.screen)
-        .scrollDismissesKeyboard(.interactively)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            submitButton
+                .padding(Theme.Spacing.large)
+                .frame(maxWidth: Theme.Size.loginFormMaxWidth)
+                .frame(maxWidth: .infinity)
+        }
+        .background { LoginBackground().ignoresSafeArea() }
         .onDisappear { signInTask?.cancel() }
     }
 
-    private var header: some View {
-        VStack(spacing: Theme.Spacing.small) {
-            Image(systemName: "airplane.departure")
-                .font(Theme.Typography.loginIcon)
-                .foregroundStyle(Theme.Palette.brand)
-            Text("Flights")
-                .font(Theme.Typography.screenTitle)
-            Text("Sign in to see your itinerary.")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Palette.secondaryText)
+    private var form: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xLarge) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                Text("Welcome aboard")
+                    .font(Theme.Typography.formTitle)
+                    .foregroundStyle(Theme.Palette.primaryText)
+                    .accessibilityAddTraits(.isHeader)
+                Text("Sign in to view your flights.")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Palette.secondaryText)
+            }
+            fields
+                .id("loginFields")
+            errorMessage
         }
-        .padding(.top, Theme.Spacing.xLarge)
-        .accessibilityElement(children: .combine)
+        .padding(Theme.Spacing.xLarge)
+        .background {
+            RoundedRectangle(cornerRadius: Theme.Login.cornerRadius)
+                .fill(Theme.Palette.card)
+                .onTapGesture { focusedField = nil }
+                .shadow(
+                    color: .black.opacity(Theme.Login.shadowOpacity),
+                    radius: Theme.Login.shadowRadius,
+                    y: Theme.Login.shadowOffset
+                )
+        }
     }
 
     private var fields: some View {
         @Bindable var viewModel = viewModel
         return VStack(spacing: Theme.Spacing.medium) {
-            LabeledField(title: "Username") {
+            LabeledField(title: "Username", symbol: "person", isFocused: focusedField == .username) {
                 TextField("Username", text: $viewModel.username)
                     .textContentType(.username)
                     .textInputAutocapitalization(.never)
@@ -65,7 +100,7 @@ struct LoginView: View {
                     .submitLabel(.next)
                     .onSubmit { focusedField = .password }
             }
-            LabeledField(title: "Password") {
+            LabeledField(title: "Password", symbol: "lock", isFocused: focusedField == .password) {
                 SecureField("Password", text: $viewModel.password)
                     .textContentType(.password)
                     .focused($focusedField, equals: .password)
@@ -91,18 +126,32 @@ struct LoginView: View {
         Button(action: submit) {
             ZStack {
                 // Keeps the button's height stable while the spinner replaces the label.
-                Text("Sign In").opacity(viewModel.isSubmitting ? 0 : 1)
+                HStack {
+                    Text("Sign In")
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .accessibilityHidden(true)
+                }
+                .opacity(viewModel.isSubmitting ? 0 : 1)
                 if viewModel.isSubmitting {
                     ProgressView().tint(.white)
                 }
             }
             .font(Theme.Typography.primaryButton)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Theme.Spacing.medium)
+            .padding(.horizontal, Theme.Spacing.xLarge)
+            .padding(.vertical, Theme.Spacing.large)
+            .foregroundStyle(.white)
+            .background(Theme.Palette.brand, in: .rect(cornerRadius: Theme.Radius.card))
+            .overlay {
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .strokeBorder(.white, lineWidth: Theme.Login.buttonBorderWidth)
+            }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(Theme.Palette.brand)
+        .buttonStyle(.plain)
+        .opacity(viewModel.canSubmit ? 1 : Theme.Login.disabledOpacity)
         .disabled(!viewModel.canSubmit)
+        .accessibilityLabel(viewModel.isSubmitting ? "Signing in" : "Sign In")
         .animation(.snappy, value: viewModel.isSubmitting)
     }
 
@@ -120,6 +169,11 @@ struct LoginView: View {
 #if DEBUG
 #Preview("Login") {
     LoginView(dependencies: .preview())
+}
+
+#Preview("Login — dark") {
+    LoginView(dependencies: .preview())
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Rejected credentials") {

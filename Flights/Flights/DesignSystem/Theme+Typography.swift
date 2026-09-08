@@ -5,6 +5,7 @@ extension Theme {
     /// Change font families here without editing individual screens.
     enum Typography {
         static let screenTitle = Font.largeTitle.weight(.bold)
+        static let formTitle = Font.title2.weight(.bold)
         static let body = Font.subheadline
         static let emphasizedBody = Font.subheadline.weight(.semibold)
         static let detailField = Font.subheadline.weight(.bold)
@@ -16,6 +17,6 @@ extension Theme {
 
         // SF Symbol sizing is independent of the text font family.
         static let actionIcon = Font.title2
-        static let loginIcon = Font.system(size: 44, weight: .semibold)
+        static let loginGlobe = Font.system(size: Theme.Login.globeSize, weight: .ultraLight)
     }
 }
