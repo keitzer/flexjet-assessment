@@ -68,6 +68,9 @@
   the departure instant, and time zone differences; include daylight-saving transitions where relevant.
 - Use service doubles for unit tests rather than the live API. Cover loading, empty, success, and
   failure states where applicable, and cancellation behavior when the implementation supports it.
+- Keep test folders aligned with production folders and shared doubles in `FlightsTests/Support`.
+  Run `bundle exec fastlane coverage` for business-logic changes; it enforces 95% per layer.
+  Keep coverage scope current as new layers are introduced (see `docs/testing.md`).
 - Run checks appropriate to the change and report what actually passed, failed, or was not run.
   Do not change app code or run competing builds during an explicit hold from the user.
 

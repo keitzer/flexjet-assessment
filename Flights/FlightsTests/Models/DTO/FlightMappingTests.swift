@@ -70,4 +70,23 @@ struct FlightMappingTests {
         let json = validJSON.replacingOccurrences(of: "\"price\":10800", with: "\"price\":10800,\"gate\":\"B12\"")
         #expect(try decode(json).count == 1)
     }
+
+    @Test("Every required field is validated independently", arguments: [
+        "id", "tripNumber", "tailNumber", "origin", "originIata", "destination",
+        "destinationIata", "departure", "arrival", "price"
+    ])
+    func missingRequiredField(field: String) throws {
+        let decoded = try JSONSerialization.jsonObject(with: Data(validJSON.utf8))
+        var records = try #require(decoded as? [[String: Any]])
+        records[0].removeValue(forKey: field)
+        let data = try JSONSerialization.data(withJSONObject: records)
+        let response = try JSONDecoder().decode(FlightsResponseDTO.self, from: data)
+        #expect(response.flights.isEmpty)
+    }
+
+    @Test("An invalid arrival is rejected as well as an invalid departure")
+    func invalidArrival() throws {
+        let json = validJSON.replacingOccurrences(of: "2026-08-29T12:20:00.000Z", with: "not-a-date")
+        #expect(try decode(json).isEmpty)
+    }
 }

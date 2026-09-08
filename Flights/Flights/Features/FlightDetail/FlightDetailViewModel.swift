@@ -14,6 +14,7 @@ final class FlightDetailViewModel {
     private let presenter: FlightDetailPresenter
     private let classifier: FlightClassifier
     private let now: @Sendable () -> Date
+    private(set) var referenceDate: Date
 
     init(
         flight: Flight,
@@ -27,10 +28,16 @@ final class FlightDetailViewModel {
         self.presenter = presenter
         self.classifier = classifier
         self.now = now
+        self.referenceDate = now()
+    }
+
+    /// Invalidates date-dependent presentation after clock or environment changes.
+    func refreshTime() {
+        referenceDate = now()
     }
 
     var model: FlightDetailModel {
-        presenter.make(from: flight, now: now())
+        presenter.make(from: flight, now: referenceDate)
     }
 
     var isComplete: Bool {
@@ -38,15 +45,16 @@ final class FlightDetailViewModel {
     }
 
     var canToggleCompletion: Bool {
-        classifier.hasDeparted(flight, now: now())
+        classifier.hasDeparted(flight, now: referenceDate)
     }
 
     var showsTodayBadge: Bool {
-        classifier.showsTodayBadge(for: flight, now: now())
+        classifier.showsTodayBadge(for: flight, now: referenceDate)
     }
 
     /// Toggles rather than only completing, so the action is reversible if tapped by mistake.
     func toggleCompletion() {
+        refreshTime()
         guard canToggleCompletion else { return }
         completion.toggle(flight.id)
     }

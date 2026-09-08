@@ -35,6 +35,7 @@ struct FlightDetailView: View {
         }
         .background(Theme.Palette.screen)
         .navigationBarTitleDisplayMode(.inline)
+        .refreshFlightTime(departures: [viewModel.flight.departure], refresh: viewModel.refreshTime)
     }
 
     private var endpoints: some View {

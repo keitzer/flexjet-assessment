@@ -6,6 +6,7 @@
 | --- | --- |
 | [Architecture](architecture.md) | Source layout and decision links |
 | [Development](development.md) | Setup, CLI filters, reports, tests, lint, debug launch |
+| [Testing and coverage](testing.md) | Business-layer coverage gate, test layout and time-zone guarantees |
 | [Service and behavior](service-and-behavior.md) | API quirks, validation, dates, time zones, completion |
 | [UI notes](ui-notes.md) | Settings, typography, enhancements, known gaps |
 

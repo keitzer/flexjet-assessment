@@ -19,6 +19,11 @@ Gemfile declares compatible versions and Gemfile.lock records resolved gems and 
 fails on build, lint, test failures, and zero executed tests. App dependencies remain managed
 separately through Swift Package Manager.
 
+The shared Xcode scheme and test lane collect line coverage. `fastlane coverage` runs all tests
+and enforces at least 95% in each business layer, while reporting whole-app coverage separately.
+Tests mirror production folders; fixtures and service doubles live in `Support`. See
+[coverage scope and limitations](../testing.md).
+
 ## Consequences
 
 A clean checkout can reproduce the CLI toolchain. Toolchain upgrades are deliberate and verified.

@@ -65,5 +65,5 @@ Exact glyph shapes and text metrics require bundling the actual font files.
 - The `+` button opens a placeholder — no add-flight flow is specified.
 - No UI test target. The view models are covered, but the navigation flow itself is not
   exercised end-to-end.
-- Date-dependent rows recompute when the view updates; there is no scheduled refresh at departure
-  or midnight yet. A screen left idle can retain its earlier category or Flight Today badge.
+- Date-dependent list/detail content refreshes at local midnight and departure, on foregrounding,
+  and on clock/time-zone changes. See [timing policy and tests](testing.md#time-zone-and-clock-guarantees).

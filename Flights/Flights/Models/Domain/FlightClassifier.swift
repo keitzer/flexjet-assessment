@@ -38,15 +38,12 @@ nonisolated struct FlightClassifier: Sendable {
         !hasDeparted(flight, now: now) && departsToday(flight, now: now)
     }
 
-    /// Splits and orders flights for display.
-    ///
-    /// Upcoming flights read soonest-first; past flights read most-recent-first, matching the
-    /// descending dates in the design's Past segment.
-    func partition(_ flights: [Flight], now: Date) -> [FlightCategory: [Flight]] {
-        var upcoming = flights.filter { !hasDeparted($0, now: now) }
-        var past = flights.filter { hasDeparted($0, now: now) }
-        upcoming.sort { $0.departure < $1.departure }
-        past.sort { $0.departure > $1.departure }
-        return [.upcoming: upcoming, .past: past]
+    /// Upcoming flights read soonest-first; past flights read most-recent-first.
+    /// Only selects and sorts the requested segment.
+    func flights(in category: FlightCategory, from flights: [Flight], now: Date) -> [Flight] {
+        flights.filter { self.category(for: $0, now: now) == category }
+            .sorted {
+                category == .upcoming ? $0.departure < $1.departure : $0.departure > $1.departure
+            }
     }
 }

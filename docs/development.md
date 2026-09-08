@@ -60,6 +60,9 @@ the build. See [Code quality](#code-quality) below.
 
 ## Test coverage
 
+Run `bundle exec fastlane coverage` for the full suite and the 95% per-business-layer coverage gate.
+See [Testing and coverage](testing.md) for scope, folder organization, date-boundary tests and limitations.
+
 Rendering regressions include repeated completion-state transitions in a hosted SwiftUI view and
 adaptive color resolution on a background task. Dynamic UIColor providers are created outside
 MainActor because SwiftUI can evaluate them on its asynchronous renderer during animations.

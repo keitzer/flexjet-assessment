@@ -34,6 +34,7 @@ struct FlightListView: View {
         // rather than as a navigation title, whose toolbar item would sit in a separate bar.
         .toolbar(.hidden, for: .navigationBar)
         .task { await viewModel.loadIfNeeded() }
+        .refreshFlightTime(departures: viewModel.flights.map(\.departure), refresh: viewModel.refreshTime)
         .refreshable { await viewModel.load() }
         .onDisappear { retryTask?.cancel() }
         .sheet(isPresented: $isShowingAddFlight) { AddFlightPlaceholder() }

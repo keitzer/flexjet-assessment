@@ -1,3 +1,5 @@
+require "json"
+
 default_platform(:ios)
 opt_out_usage
 skip_docs
@@ -9,6 +11,7 @@ platform :ios do
       project: "Flights/Flights.xcodeproj",
       scheme: "Flights",
       configuration: "Debug",
+      code_coverage: true,
       # Let Xcode select the installed runtime instead of matching the SDK's exact version.
       destination: "platform=iOS Simulator,name=#{options[:device] || 'iPhone 17 Pro'},OS=latest",
       skip_detect_devices: true,
@@ -24,5 +27,40 @@ platform :ios do
       fail_build: true
     )
     UI.user_error!("No tests ran. Check the only: filter and the Flights scheme.") if results[:number_of_tests].to_i.zero?
+  end
+end
+
+platform :ios do
+  desc "Run all tests and require at least 95% business-logic line coverage"
+  lane :coverage do |options|
+    test(device: options[:device])
+    report = JSON.parse(sh("xcrun xccov view --report --json test_output/Flights.xcresult", log: false))
+    File.write("test_output/coverage.json", JSON.pretty_generate(report))
+    target = report.fetch("targets").find { |item| item.fetch("name") == "Flights.app" }
+    UI.user_error!("Flights.app is missing from the coverage report") unless target
+    files = target.fetch("files")
+    groups = {
+      "Domain, DTOs and formatting" => files.select do |file|
+        file.fetch("path").include?("/Models/") && file.fetch("name") != "Flight+Samples.swift"
+      end,
+      "Networking, session and persistence" => files.select do |file|
+        file.fetch("path").include?("/Core/") && file.fetch("name") != "MockFlightsAPIClient.swift"
+      end,
+      "Feature view models and presenters" => files.select do |file|
+        file.fetch("path").include?("/Features/") && file.fetch("name").end_with?("Model.swift")
+      end,
+      "Navigation" => files.select { |file| file.fetch("path").include?("/App/Navigation/") }
+    }
+    UI.message(format("Whole app: %.2f%% line coverage (includes views)", target.fetch("lineCoverage") * 100))
+    failures = []
+    groups.each do |name, entries|
+      total = entries.sum { |file| file.fetch("executableLines") }
+      covered = entries.sum { |file| file.fetch("coveredLines") }
+      UI.user_error!("No executable lines found for #{name}") if total.zero?
+      percent = covered.fdiv(total) * 100
+      UI.message(format("%s: %.2f%% (%d/%d lines)", name, percent, covered, total))
+      failures << name if percent < 95
+    end
+    UI.user_error!("Business coverage below 95%: #{failures.join(', ')}") unless failures.empty?
   end
 end

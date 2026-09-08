@@ -57,10 +57,11 @@ struct FlightClassifierTests {
         let recent = Fixtures.flight(id: "recent", departure: "2026-09-04T15:00:00Z", arrival: "2026-09-04T18:00:00Z")
         let oldest = Fixtures.flight(id: "oldest", departure: "2026-09-01T15:00:00Z", arrival: "2026-09-01T18:00:00Z")
 
-        let result = classifier.partition([later, oldest, soon, recent], now: now)
-
-        #expect(result[.upcoming]?.map(\.id) == ["soon", "later"])
-        #expect(result[.past]?.map(\.id) == ["recent", "oldest"])
+        let flights = [later, oldest, soon, recent]
+        let upcoming = classifier.flights(in: .upcoming, from: flights, now: now)
+        let past = classifier.flights(in: .past, from: flights, now: now)
+        #expect(upcoming.map(\.id) == ["soon", "later"])
+        #expect(past.map(\.id) == ["recent", "oldest"])
     }
 
     @Test("A flight departing at exactly this instant has not departed yet")

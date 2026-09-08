@@ -27,6 +27,7 @@ final class FlightListViewModel {
     private let builder: FlightRowModelBuilder
     /// Injected so tests can pin "now" and previews stay deterministic.
     private let now: @Sendable () -> Date
+    private(set) var referenceDate: Date
     private var latestRequestID: UUID?
 
     init(
@@ -43,11 +44,17 @@ final class FlightListViewModel {
         self.classifier = classifier
         self.builder = builder
         self.now = now
+        self.referenceDate = now()
+    }
+
+    /// Invalidates date-dependent presentation after clock or environment changes.
+    func refreshTime() {
+        referenceDate = now()
     }
 
     /// Flights for the selected segment, ordered for display.
     var visibleFlights: [Flight] {
-        classifier.partition(flights, now: now())[selectedCategory] ?? []
+        classifier.flights(in: selectedCategory, from: flights, now: referenceDate)
     }
 
     /// Rows for the selected segment, each paired with the flight it came from so the view can
@@ -57,9 +64,8 @@ final class FlightListViewModel {
     /// re-renders the list — this is what updates a row's checkmark when the user marks a
     /// flight complete on the detail screen and comes back.
     var items: [FlightListItem] {
-        let instant = now()
-        let visible = classifier.partition(flights, now: instant)[selectedCategory] ?? []
-        return visible.map { flight in
+        let instant = referenceDate
+        return visibleFlights.map { flight in
             FlightListItem(
                 flight: flight,
                 model: builder.make(
@@ -99,6 +105,7 @@ final class FlightListViewModel {
             let result = try await apiClient.flights(token: token)
             try Task.checkCancellation()
             guard latestRequestID == requestID, session.revision == sessionRevision else { return }
+            refreshTime()
             flights = result
             state = .loaded
         } catch {
@@ -115,9 +122,5 @@ final class FlightListViewModel {
             }
             state = .failed(apiError)
         }
-    }
-
-    func signOut() {
-        session.endSession()
     }
 }

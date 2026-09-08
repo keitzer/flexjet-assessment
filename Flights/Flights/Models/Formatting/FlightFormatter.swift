@@ -17,7 +17,9 @@ nonisolated struct FlightFormatter: Sendable {
         timeZone: TimeZone = .autoupdatingCurrent
     ) {
         self.locale = locale
-        self.calendar = calendar
+        var displayCalendar = calendar
+        displayCalendar.timeZone = timeZone
+        self.calendar = displayCalendar
         self.timeZone = timeZone
     }
 
