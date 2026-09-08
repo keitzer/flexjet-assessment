@@ -13,6 +13,9 @@
 - Use SwiftUI and Swift 6. App dependencies are managed with Swift Package Manager.
 - MVVM with coordinator-owned navigation is the preferred direction. Follow the established layers
   as they evolve; do not introduce a competing architecture or abstractions without a concrete need.
+  This is now implemented as a typed router, not a UIKit-style coordinator: `FlightsRouter` is an
+  `@Observable` owning a `[FlightRoute]` path of plain values. Screens call `router.showDetail(_:)`
+  rather than building their own destinations. Do not reintroduce view-controller-style coordinators.
 - Keep networking, data validation, and business rules separate from SwiftUI views. View models
   expose presentation state and coordinate actions; views render state and forward user intent.
 - Prefer Observation for observable presentation state and async/await for asynchronous requests.
@@ -54,3 +57,77 @@
   failure states where applicable, and cancellation behavior when the implementation supports it.
 - Run checks appropriate to the change and report what actually passed, failed, or was not run.
   Do not change app code or run competing builds during an explicit hold from the user.
+
+
+## Decisions already made
+
+Recorded so a later session extends them instead of relitigating them. The reasoning lives in
+README.md; this is the short form.
+
+- Navigation is a typed router (above), not a coordinator object.
+- Isolation follows the layer. The target sets `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, so
+  domain models, formatting and networking are explicitly `nonisolated` and only UI-facing state
+  (`SessionStore`, `FlightCompletionStore`, view models) is main-actor isolated. Mark new value
+  types crossing actors `nonisolated`; do not reach for `@unchecked Sendable` to silence this.
+  The one justified `@unchecked` is `UserDefaultsCompletionStorage`, because `UserDefaults`
+  predates `Sendable` but is documented thread-safe.
+- Invalid flight records are dropped, not surfaced as an error: `Flight.init?(dto:)` is the single
+  validation point, and one malformed record must not empty the whole screen.
+- Completion is device-local (`UserDefaults`) because the service has no write endpoint. The auth
+  token is a credential and lives in the Keychain instead.
+- A 401 on an authenticated route ends the session, returning the user to login.
+- No third-party dependencies. Two endpoints do not justify a networking library.
+- Placeholders are honest: Favorites, Contracts and the `+` button say they are unbuilt rather
+  than faking content. Profile is real to the extent that it owns sign-out.
+
+## Service quirks
+
+Verified against the live API, not assumed. Re-check before changing decoding or formatting.
+
+Root: `https://v0-simple-authentication-api.vercel.app` — sole user `john` / `12345`.
+
+| Quirk | Consequence |
+| --- | --- |
+| `flightNumber` is nullable (`FL006`) | Past rows fall back to the tail number; detail shows an em dash |
+| `FL034` has a 72-char origin label ending `(JFK)` but `originIata: SFO` | Label and IATA are kept independent; never derive one from the other. Long labels wrap, not truncate |
+| Live sends `...:00.000Z`; the published docs show plain `...:00Z` | `ISO8601Parsing` accepts both layouts |
+| `price` is an integer in **dollars**, no currency field | Rendered `$349`; USD assumed |
+| JWT expires after 24h | Expiry is handled reactively via 401, not by decoding `exp` |
+| No completion endpoint exists | Completion is local-only; do not invent a PATCH |
+
+## Traps that cost real time
+
+- `Date.AnchoredRelativeFormatStyle` describes the **anchor relative to the value**, which is the
+  opposite of how it reads. Format `now` with the flight's date as the anchor to get "2w ago"
+  rather than "in 2w". `FlightFormatterTests` pins both directions.
+- iOS separates the time from AM/PM with a narrow no-break space (**U+202F**), not a space. Two
+  identical-looking strings compare unequal. Tests compare via `Fixtures.normalized(_:)`.
+- SwiftLint `strict: true` promotes every warning to an error, so the *warning* thresholds are the
+  real limits: **200 lines per file**, 40 per function, 120 columns, 3-char minimum identifiers,
+  no force unwrapping, imports sorted with `@testable` first. Plan for many small files.
+- Leading-dot shorthand does not resolve on an existential parameter: write
+  `MockFlightsAPIClient.empty`, not `.empty`, where the parameter is `any FlightsAPIClient`.
+- iOS 26 places `.toolbar` items in a floating capsule above a large title. The Flights header is
+  drawn in content instead, so the title and `+` share one row as the design shows.
+- Simulator Keychain items **survive `simctl uninstall`**, so an app reinstall can still launch
+  signed in and a "fresh install" is not actually fresh. To get back to the login screen use
+  `xcrun simctl keychain <device> reset` (uninstalling or wiping `UserDefaults` will not do it).
+  This is simulator behaviour, not an app bug — session restore is intended.
+
+## Commands
+
+```sh
+swiftlint                                   # from the repository root
+xcodebuild -project Flights/Flights.xcodeproj -scheme Flights \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+```
+
+The `Flights` shared scheme includes the `FlightsTests` target, so `Cmd-U` works on a fresh clone.
+
+Debug builds accept `-seedToken <jwt>` to launch already signed in, for inspecting the signed-in
+screens without typing on the simulator keyboard. It compiles out of Release. Obtain a token with:
+
+```sh
+curl -s -X POST "$ROOT/api/signIn" -H "Content-Type: application/json" \
+  -d '{"username":"john","password":"12345"}'
+```
