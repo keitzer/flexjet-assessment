@@ -61,6 +61,7 @@ struct FlightListView: View {
         case .failed(let error):
             ErrorStateView(error: error) {
                 guard retryTask == nil else { return }
+                Haptics.tap()
                 retryTask = Task {
                     defer { retryTask = nil }
                     await viewModel.load()
@@ -80,6 +81,7 @@ struct FlightListView: View {
             LazyVStack(spacing: Theme.Spacing.medium) {
                 ForEach(viewModel.items) { item in
                     Button {
+                        Haptics.tap()
                         router.showDetail(item.flight)
                     } label: {
                         FlightRow(model: item.model)

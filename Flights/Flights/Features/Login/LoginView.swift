@@ -108,6 +108,7 @@ struct LoginView: View {
 
     private func submit() {
         guard signInTask == nil, viewModel.canSubmit else { return }
+        Haptics.tap()
         focusedField = nil
         signInTask = Task {
             defer { signInTask = nil }

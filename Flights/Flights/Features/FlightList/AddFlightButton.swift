@@ -8,7 +8,10 @@ struct AddFlightButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            Haptics.tap()
+            action()
+        } label: {
             Image(systemName: "plus.square.fill")
                 .font(.title2)
                 .foregroundStyle(Theme.Palette.brand)
@@ -31,8 +34,11 @@ struct AddFlightPlaceholder: View {
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .tint(Theme.Palette.brand)
+                    Button("Done") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .tint(Theme.Palette.brand)
                 }
             }
         }

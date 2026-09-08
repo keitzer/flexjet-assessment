@@ -21,6 +21,7 @@ struct SegmentedFilterControl<Item: Hashable & Identifiable>: View {
         .padding(Theme.Spacing.xSmall)
         .background(Theme.Palette.segmentTrack, in: .capsule)
         .accessibilityElement(children: .contain)
+        .sensoryFeedback(.selection, trigger: selection)
     }
 
     private func segment(for item: Item) -> some View {

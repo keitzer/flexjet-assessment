@@ -193,6 +193,10 @@ minutes from AM/PM with U+202F, which is invisible on screen but not in a string
   selectable, and completion conveyed by fill and label rather than colour alone.
 - Small motion: the segment pill slides via `matchedGeometryEffect`, the completion mark uses a
   symbol replace transition, and completing a flight fires haptic feedback.
+- Haptics: light taps for sign-in, add flight, flight rows, sign-out, retry, and sheet dismissal;
+  selection feedback when filters or tabs change; success feedback for completion and a light
+  impact when undoing it. Feedback stays in the UI layer. Check the tactile feel on a physical
+  iPhone; simulator tests cannot verify it.
 - Strict quality gates: Swift 6, warnings-as-errors, and SwiftLint in strict mode (200-line files,
   40-line functions, no force unwraps) failing the build on any violation.
 

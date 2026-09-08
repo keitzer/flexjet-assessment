@@ -13,6 +13,7 @@ struct ProfileScreen: View {
                 }
                 Section {
                     Button("Sign Out", role: .destructive) {
+                        Haptics.tap()
                         dependencies.session.endSession()
                     }
                 }
